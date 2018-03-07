@@ -1,11 +1,11 @@
 package io.transwarp.streamgenerator.datagenerator;
 
 import io.transwarp.streamgenerator.DataGen;
+import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.common.StringGenerator;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -13,17 +13,12 @@ import java.util.StringJoiner;
  * Date: 2018/3/2
  */
 public class CDC implements DataGen {
-    private static ChangeType lastChangeType;
+    private ChangeType lastChangeType;
     private long baseTime = System.currentTimeMillis();
-    private String delimiter;
-
-    public CDC(Properties props) {
-        delimiter = props.getProperty("delimiter");
-    }
 
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(delimiter);
+        StringJoiner result = new StringJoiner(Generator.delimiter);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long time = getNextTime();
         String timeStr = sdf.format(new Date(time));

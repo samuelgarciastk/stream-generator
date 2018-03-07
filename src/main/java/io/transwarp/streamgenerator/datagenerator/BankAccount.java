@@ -2,6 +2,7 @@ package io.transwarp.streamgenerator.datagenerator;
 
 import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
+import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.common.ConfLoader;
 import io.transwarp.streamgenerator.common.TimeGenerator;
 
@@ -18,17 +19,14 @@ import java.util.stream.Collectors;
 public class BankAccount implements DataGen {
     private static final List<String> bankName = ConfLoader.loadConf("bank");
     private static final List<Integer> cardNum = ConfLoader.loadConf("bank_account_conf").stream().map(Integer::parseInt).collect(Collectors.toList());
-    private AtomicLong base = new AtomicLong();
-    private String delimiter;
+    private AtomicLong base = new AtomicLong(Long.parseLong(Generator.props.getProperty("bank.account.base")));
     private Consumer consumer;
 
-    public BankAccount(Properties props) {
-        base.set(Long.parseLong(props.getProperty("bank.account.base")));
-        delimiter = props.getProperty("delimiter");
+    public BankAccount() {
         Properties consumerProps = ConfLoader.loadProps("consumer.properties");
         consumerProps.put("max.poll.records", "1");
         consumerProps.put("group.id", "BankAccount");
-        consumer = new Consumer(props.getProperty("people.topic"), consumerProps);
+        consumer = new Consumer(Generator.topic, consumerProps);
     }
 
     @Override
@@ -37,7 +35,7 @@ public class BankAccount implements DataGen {
         int size = cardNum.get((int) (Math.random() * cardNum.size()));
         StringJoiner result = new StringJoiner(System.getProperty("line.separator"));
         for (int i = 0; i < size; i++) {
-            StringJoiner line = new StringJoiner(delimiter);
+            StringJoiner line = new StringJoiner(Generator.delimiter);
             line.add(bankName.get((int) (Math.random() * bankName.size())));
             line.add(String.format("%016d", base.addAndGet((int) (Math.random() * 1000 + 1))));
             line.add(TimeGenerator.randomDate(people[4], "20171231", "yyyyMMdd"));

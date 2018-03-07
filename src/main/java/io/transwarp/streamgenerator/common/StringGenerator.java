@@ -7,10 +7,10 @@ import java.util.Random;
  * Date: 2018/3/1
  */
 public class StringGenerator {
-    private static final String BASE = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String BASE = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
-     * Number: 0-10; Uppercase: 10-36; Lowercase: 36-62
+     * Number: 0-10; Lowercase: 10-36; Uppercase: 36-62
      */
     public static String randomString(int length, int start, int end) {
         Random random = new Random();
@@ -41,10 +41,10 @@ public class StringGenerator {
     }
 
     public static String randomUpper(int length) {
-        return randomString(length, 10, 36);
+        return randomString(length, 36, 62);
     }
 
     public static String randomLower(int length) {
-        return randomString(length, 36, 62);
+        return randomString(length, 10, 36);
     }
 }

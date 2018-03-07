@@ -1,10 +1,10 @@
 package io.transwarp.streamgenerator.datagenerator;
 
 import io.transwarp.streamgenerator.DataGen;
+import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.columngenerator.Address;
 import io.transwarp.streamgenerator.common.StringGenerator;
 
-import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -13,15 +13,10 @@ import java.util.StringJoiner;
  */
 public class Hotel implements DataGen {
     private Address address = new Address();
-    private String delimiter;
-
-    public Hotel(Properties props) {
-        delimiter = props.getProperty("delimiter");
-    }
 
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(delimiter);
+        StringJoiner result = new StringJoiner(Generator.delimiter);
         result.add(StringGenerator.randomString((int) (Math.random() * 4 + 6)) + "酒店");
         result.add(address.nextRecord());
         return result.toString();

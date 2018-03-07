@@ -2,6 +2,7 @@ package io.transwarp.streamgenerator.datagenerator;
 
 import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
+import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.common.ConfLoader;
 import io.transwarp.streamgenerator.common.TimeGenerator;
 
@@ -14,19 +15,15 @@ import java.util.StringJoiner;
  * Date: 2018/3/6
  */
 public class PhoneCall implements DataGen {
-    private int windowSize;
-    private double ratio;
-    private String delimiter;
+    private int windowSize = Integer.parseInt(Generator.props.getProperty("phone.window.size"));
+    private double ratio = Double.parseDouble(Generator.props.getProperty("phone.ratio"));
     private Consumer consumer;
 
-    public PhoneCall(Properties props) {
-        windowSize = Integer.parseInt(props.getProperty("phone.window.size"));
-        ratio = Double.parseDouble(props.getProperty("phone.ratio"));
-        delimiter = props.getProperty("delimiter");
+    public PhoneCall() {
         Properties consumerProps = ConfLoader.loadProps("consumer.properties");
         consumerProps.put("max.poll.records", windowSize);
         consumerProps.put("group.id", "PhoneCall");
-        consumer = new Consumer(props.getProperty("people.topic"), consumerProps);
+        consumer = new Consumer(Generator.topic, consumerProps);
     }
 
     @Override
@@ -34,7 +31,7 @@ public class PhoneCall implements DataGen {
         List<String> people = consumer.getValues(windowSize);
         StringJoiner result = new StringJoiner(System.getProperty("line.separator"));
         for (int i = 0; i < windowSize * ratio; i++) {
-            StringJoiner line = new StringJoiner(delimiter);
+            StringJoiner line = new StringJoiner(Generator.delimiter);
             int index1 = (int) (Math.random() * windowSize);
             int index2 = (int) (Math.random() * windowSize);
             while (index1 == index2) index2 = (int) (Math.random() * windowSize);

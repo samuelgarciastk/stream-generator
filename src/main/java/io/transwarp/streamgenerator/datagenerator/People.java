@@ -1,12 +1,9 @@
 package io.transwarp.streamgenerator.datagenerator;
 
 import io.transwarp.streamgenerator.DataGen;
-import io.transwarp.streamgenerator.columngenerator.Address;
-import io.transwarp.streamgenerator.columngenerator.Gender;
-import io.transwarp.streamgenerator.columngenerator.Name;
-import io.transwarp.streamgenerator.columngenerator.Nation;
+import io.transwarp.streamgenerator.Generator;
+import io.transwarp.streamgenerator.columngenerator.*;
 
-import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -15,23 +12,23 @@ import java.util.StringJoiner;
  */
 public class People implements DataGen {
     private Name name = new Name();
-    private Gender gender = new Gender();
     private Nation nation = new Nation();
+    private IDCard idCard = new IDCard();
+    private PhoneNumber phoneNumber = new PhoneNumber();
+    private Email email = new Email();
     private Address address = new Address();
-    private String delimiter;
-
-    public People(Properties props) {
-        String beginDate = props.getProperty("people.begin.date");
-        String endDate = props.getProperty("people.end.date");
-        delimiter = props.getProperty("delimiter");
-    }
 
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(delimiter);
+        StringJoiner result = new StringJoiner(Generator.delimiter);
+        String id = idCard.nextRecord();
         result.add(name.nextRecord());
-        result.add(gender.nextRecord());
+        result.add(Integer.parseInt(String.valueOf(id.charAt(16))) % 2 == 1 ? "男" : "女");
         result.add(nation.nextRecord());
+        result.add(id);
+        result.add(id.substring(6, 14));
+        result.add(phoneNumber.nextRecord());
+        result.add(email.nextRecord());
         result.add(address.nextRecord());
         return result.toString();
     }

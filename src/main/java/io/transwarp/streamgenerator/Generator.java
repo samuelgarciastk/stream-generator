@@ -17,12 +17,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: 2018/3/1
  */
 public class Generator {
+    public static final Properties props = ConfLoader.loadProps("generator.properties");
+    public static final String delimiter = props.getProperty("delimiter");
+    public static final String topic = props.getProperty("topic");
+    private static final int threadNum = Integer.parseInt(props.getProperty("thread.num"));
+    private static final int dataPerSecond = Integer.parseInt(props.getProperty("data.per.second"));
     private List<DataGen> data = new ArrayList<>();
-    private Properties props = ConfLoader.loadProps("generator.properties");
-    private String topic = props.getProperty("topic");
-    private int threadNum = Integer.parseInt(props.getProperty("thread.num"));
-    private int dataPerSecond = Integer.parseInt(props.getProperty("data.per.second"));
-    private String delimiter = props.getProperty("delimiter");
 
     public static void main(String[] args) {
         Generator generator = new Generator();
@@ -37,7 +37,7 @@ public class Generator {
                 data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
             } catch (ClassNotFoundException e) {
                 try {
-                    data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor(Properties.class).newInstance(props));
+                    data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor().newInstance());
                 } catch (Exception e1) {
                     System.out.println("Class not found: " + name);
                     e1.printStackTrace();
@@ -77,8 +77,9 @@ public class Generator {
 
         Pause.INSTANCE.setIsPaused(false);
         long lastTime = System.currentTimeMillis();
+        int limit = dataPerSecond - threadNum > 0 ? dataPerSecond - threadNum : 0;
         while (true) {
-            if (count.get() < dataPerSecond) continue;
+            if (count.get() < limit) continue;
             long now = System.currentTimeMillis();
             long diff = now - lastTime;
             lastTime = now;

@@ -1,8 +1,8 @@
 package io.transwarp.streamgenerator.datagenerator;
 
+import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.ConfLoader;
-import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.common.TimeGenerator;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class PhoneCall implements DataGen {
     }
 
     @Override
-    public String nextRecord(int colNum) {
+    public String nextRecord() {
         List<String> people = consumer.getValues(windowSize);
         List<String> result = new ArrayList<>();
         for (int i = 0; i < windowSize * ratio; i++) {
@@ -44,7 +44,7 @@ public class PhoneCall implements DataGen {
             line.add(TimeGenerator.randomDate((people1[4].compareTo(people2[4]) > 0 ? people1[4] : people2[4]), "20171231", "yyyyMMdd"));
             line.add(TimeGenerator.randomTime());
             line.add(String.valueOf((int) (Math.random() * 60) + 1));
-            result.add(line.stream().limit(colNum).collect(Collectors.joining(",")));
+            result.add(line.stream().collect(Collectors.joining(",")));
         }
         return result.stream().collect(Collectors.joining(System.getProperty("line.separator")));
     }

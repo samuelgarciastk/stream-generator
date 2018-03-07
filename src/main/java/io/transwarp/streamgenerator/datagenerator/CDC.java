@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CDC implements DataGen {
-    private static final long baseTime = System.currentTimeMillis();
     private static ChangeType lastChangeType;
+    private long baseTime = System.currentTimeMillis();
 
     @Override
-    public String nextRecord(int colNum) {
+    public String nextRecord() {
         List<String> result = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long time = getNextTime();
@@ -27,11 +27,11 @@ public class CDC implements DataGen {
         RecordType recordType = RecordType.getRandom();
         result.add("\"" + recordType.toString() + "\"");
         result.add(genRecord(changeType));
-        return result.stream().limit(colNum).collect(Collectors.joining(","));
+        return result.stream().collect(Collectors.joining(","));
     }
 
     private String genRecord(ChangeType changeType) {
-        String record1 = "\"" + (long) (Math.random() * Long.MAX_VALUE) + "\",\"" + StringGenerator.randomString((int) (Math.random() * 10), 10, 36) + "\"";
+        String record1 = "\"" + (long) (Math.random() * Long.MAX_VALUE) + "\",\"" + StringGenerator.randomUpper((int) (Math.random() * 10)) + "\"";
         String result;
         switch (changeType) {
             case I: {
@@ -43,7 +43,7 @@ public class CDC implements DataGen {
                 break;
             }
             case U: {
-                String record2 = "\"" + (long) (Math.random() * Long.MAX_VALUE) + "\",\"" + StringGenerator.randomString((int) (Math.random() * 10), 10, 36) + "\"";
+                String record2 = "\"" + (long) (Math.random() * Long.MAX_VALUE) + "\",\"" + StringGenerator.randomUpper((int) (Math.random() * 10)) + "\"";
                 result = record1 + "," + record2;
                 break;
             }

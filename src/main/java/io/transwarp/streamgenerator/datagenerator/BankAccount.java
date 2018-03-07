@@ -1,8 +1,8 @@
 package io.transwarp.streamgenerator.datagenerator;
 
+import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.ConfLoader;
-import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.common.TimeGenerator;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class BankAccount implements DataGen {
     private static final List<String> bankName = ConfLoader.loadConf("bank");
     private static final List<Integer> cardNum = ConfLoader.loadConf("bank_account_conf").stream().map(Integer::parseInt).collect(Collectors.toList());
-    private static final AtomicLong base = new AtomicLong();
+    private AtomicLong base = new AtomicLong();
     private Consumer consumer;
 
     public BankAccount(Properties props) {
@@ -26,7 +26,7 @@ public class BankAccount implements DataGen {
     }
 
     @Override
-    public String nextRecord(int colNum) {
+    public String nextRecord() {
         String[] people = consumer.getOneValue().split(",");
         int size = cardNum.get((int) (Math.random() * cardNum.size()));
         List<String> result = new ArrayList<>();
@@ -38,7 +38,7 @@ public class BankAccount implements DataGen {
             line.add(people[3]);
             line.add(people[0]);
             line.add(people[5]);
-            result.add(line.stream().limit(colNum).collect(Collectors.joining(",")));
+            result.add(line.stream().collect(Collectors.joining(",")));
         }
         return result.stream().collect(Collectors.joining(System.getProperty("line.separator")));
     }

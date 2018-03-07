@@ -4,18 +4,26 @@ import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.columngenerator.Address;
 import io.transwarp.streamgenerator.common.StringGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Properties;
+import java.util.StringJoiner;
 
+/**
+ * Author: stk
+ * Date: 2018/3/1
+ */
 public class Hotel implements DataGen {
     private Address address = new Address();
+    private String delimiter;
+
+    public Hotel(Properties props) {
+        delimiter = props.getProperty("delimiter");
+    }
 
     @Override
     public String nextRecord() {
-        List<String> result = new ArrayList<>();
+        StringJoiner result = new StringJoiner(delimiter);
         result.add(StringGenerator.randomString((int) (Math.random() * 4 + 6)) + "酒店");
         result.add(address.nextRecord());
-        return result.stream().collect(Collectors.joining(","));
+        return result.toString();
     }
 }

@@ -4,18 +4,26 @@ import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.StringGenerator;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Properties;
+import java.util.StringJoiner;
 
+/**
+ * Author: stk
+ * Date: 2018/3/2
+ */
 public class CDC implements DataGen {
     private static ChangeType lastChangeType;
     private long baseTime = System.currentTimeMillis();
+    private String delimiter;
+
+    public CDC(Properties props) {
+        delimiter = props.getProperty("delimiter");
+    }
 
     @Override
     public String nextRecord() {
-        List<String> result = new ArrayList<>();
+        StringJoiner result = new StringJoiner(delimiter);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long time = getNextTime();
         String timeStr = sdf.format(new Date(time));
@@ -27,7 +35,7 @@ public class CDC implements DataGen {
         RecordType recordType = RecordType.getRandom();
         result.add("\"" + recordType.toString() + "\"");
         result.add(genRecord(changeType));
-        return result.stream().collect(Collectors.joining(","));
+        return result.toString();
     }
 
     private String genRecord(ChangeType changeType) {

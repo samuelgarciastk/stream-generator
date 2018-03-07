@@ -15,6 +15,7 @@ public class ConfLoader {
         try (InputStreamReader in = getConf(name)) {
             props.load(in);
         } catch (IOException e) {
+            System.out.println("Properties load error: " + name);
             e.printStackTrace();
         }
         return props;
@@ -68,6 +69,7 @@ public class ConfLoader {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        System.out.println("File not found: " + name);
         throw new NullPointerException();
     }
 }

@@ -17,6 +17,7 @@ public class TimeGenerator {
             if (begin > end) return null;
             return sf.format(new Date(begin + (long) (Math.random() * (end - begin))));
         } catch (ParseException e) {
+            System.out.println("Date format error: " + format);
             e.printStackTrace();
         }
         return null;

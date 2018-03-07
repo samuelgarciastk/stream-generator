@@ -4,8 +4,10 @@ import io.transwarp.streamgenerator.common.ConfLoader;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,29 +17,55 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Date: 2018/3/1
  */
 public class Generator {
+    private List<DataGen> data = new ArrayList<>();
+    private Properties props = ConfLoader.loadProps("generator.properties");
+    private String topic = props.getProperty("topic");
+    private int threadNum = Integer.parseInt(props.getProperty("thread.num"));
+    private int dataPerSecond = Integer.parseInt(props.getProperty("data.per.second"));
+    private String delimiter = props.getProperty("delimiter");
+
     public static void main(String[] args) {
-        List<String> l = ConfLoader.loadConf("city", 1, 0);
-        l.forEach(System.out::println);
-//        Properties props = ConfLoader.loadProps("generator.properties");
-//        DataGen dataGen = new PhoneCall(props);
-//        new Generator().sendData(dataGen, props.getProperty("topic"),
-//                Integer.parseInt(props.getProperty("thread.num")),
-//                Integer.parseInt(props.getProperty("data.per.second")),
-//                Integer.parseInt(props.getProperty("col.num")));
+        Generator generator = new Generator();
+        generator.parseConf();
+        generator.sendData();
     }
 
-    public void sendData(DataGen dataGen, String topic, int threadNum, int dataPerSecond) {
+    public void parseConf() {
+        String[] classes = props.getProperty("template").split(" ");
+        for (String name : classes) {
+            try {
+                data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
+            } catch (ClassNotFoundException e) {
+                try {
+                    data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor(Properties.class).newInstance(props));
+                } catch (Exception e1) {
+                    System.out.println("Class not found: " + name);
+                    e1.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String nextRecord() {
+        StringJoiner record = new StringJoiner(delimiter);
+        data.forEach(c -> record.add(c.nextRecord()));
+        return record.toString();
+    }
+
+    public void sendData() {
         Properties props = ConfLoader.loadProps("producer.properties");
+        Producer<String, String> producer = new KafkaProducer<>(props);
         AtomicInteger count = new AtomicInteger(0);
         Pause.INSTANCE.setIsPaused(true);
 
-        Producer<String, String> producer = new KafkaProducer<>(props);
         ExecutorService exec = Executors.newFixedThreadPool(threadNum);
         for (int i = 0; i < threadNum; i++) {
             exec.submit(() -> {
                 while (true) {
                     if (Pause.INSTANCE.isPaused()) continue;
-                    String msg = dataGen.nextRecord();
+                    String msg = this.nextRecord();
                     if (msg.trim().equals("")) continue;
 //                    producer.send(new ProducerRecord<>(topic, msg));
                     System.out.println(msg);
@@ -47,9 +75,7 @@ public class Generator {
         }
         exec.shutdown();
 
-        System.out.println("BEGIN");
         Pause.INSTANCE.setIsPaused(false);
-
         long lastTime = System.currentTimeMillis();
         while (true) {
             if (count.get() < dataPerSecond) continue;

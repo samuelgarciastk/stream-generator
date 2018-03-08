@@ -1,4 +1,4 @@
-package io.transwarp.streamgenerator.datagenerator;
+package io.transwarp.streamgenerator.schemagenerator;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.Generator;

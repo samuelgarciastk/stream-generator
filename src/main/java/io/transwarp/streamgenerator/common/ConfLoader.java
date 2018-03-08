@@ -56,6 +56,17 @@ public class ConfLoader {
         return sb.toString();
     }
 
+    public static List<String> loadData(String name) {
+        List<String> list = new ArrayList<>();
+        try (InputStreamReader in = getConf(name); BufferedReader bf = new BufferedReader(in)) {
+            String line;
+            while ((line = bf.readLine()) != null) list.add(line);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private static InputStreamReader getConf(String name) {
         File conf = new File(System.getProperty("user.dir") + File.separator + name);
         try {

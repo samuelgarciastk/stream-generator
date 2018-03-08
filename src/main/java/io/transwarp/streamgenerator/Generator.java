@@ -47,7 +47,7 @@ public class Generator {
                         data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
                     } catch (ClassNotFoundException e) {
                         try {
-                            data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor().newInstance());
+                            data.add((DataGen) Class.forName("io.transwarp.streamgenerator.schemagenerator." + name).getConstructor().newInstance());
                         } catch (Exception e1) {
                             System.out.println("Class not found: " + name);
                             e1.printStackTrace();

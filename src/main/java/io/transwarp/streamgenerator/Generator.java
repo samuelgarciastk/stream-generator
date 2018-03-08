@@ -1,8 +1,8 @@
 package io.transwarp.streamgenerator;
 
+import io.transwarp.streamgenerator.columngenerator.RegexString;
+import io.transwarp.streamgenerator.columngenerator.Timestamp;
 import io.transwarp.streamgenerator.common.ConfLoader;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,6 @@ import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: stk
@@ -31,19 +30,32 @@ public class Generator {
     }
 
     public void parseConf() {
-        String[] classes = props.getProperty("template").split(" ");
+        String[] classes = props.getProperty("template").split("``");
         for (String name : classes) {
-            try {
-                data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
-            } catch (ClassNotFoundException e) {
-                try {
-                    data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor().newInstance());
-                } catch (Exception e1) {
-                    System.out.println("Class not found: " + name);
-                    e1.printStackTrace();
+            name = name.trim();
+            switch (name.substring(0, 2)) {
+                case "T:": {
+                    data.add(new Timestamp(name.substring(2)));
+                    break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                case "R:": {
+                    data.add(new RegexString(name.substring(2)));
+                    break;
+                }
+                default: {
+                    try {
+                        data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
+                    } catch (ClassNotFoundException e) {
+                        try {
+                            data.add((DataGen) Class.forName("io.transwarp.streamgenerator.datagenerator." + name).getConstructor().newInstance());
+                        } catch (Exception e1) {
+                            System.out.println("Class not found: " + name);
+                            e1.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -55,43 +67,35 @@ public class Generator {
     }
 
     public void sendData() {
-        Properties props = ConfLoader.loadProps("producer.properties");
-        Producer<String, String> producer = new KafkaProducer<>(props);
-        AtomicInteger count = new AtomicInteger(0);
-        Pause.INSTANCE.setIsPaused(true);
-
+        Sender.setIsPaused(true);
         ExecutorService exec = Executors.newFixedThreadPool(threadNum);
-        for (int i = 0; i < threadNum; i++) {
-            exec.submit(() -> {
-                while (true) {
-                    if (Pause.INSTANCE.isPaused()) continue;
-                    String msg = this.nextRecord();
-                    if (msg.trim().equals("")) continue;
-//                    producer.send(new ProducerRecord<>(topic, msg));
-                    System.out.println(msg);
-                    count.getAndIncrement();
-                }
-            });
-        }
+        for (int i = 0; i < threadNum; i++) exec.submit(new Sender(Generator.this));
         exec.shutdown();
 
-        Pause.INSTANCE.setIsPaused(false);
+        long beginTime = System.currentTimeMillis();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Sender.shutdown();
+            System.out.println("Total messages sent: " + Sender.getSum());
+            System.out.println("Total duration: " + (System.currentTimeMillis() - beginTime) / 1000.0);
+        }));
+
+        Sender.setIsPaused(false);
         long lastTime = System.currentTimeMillis();
         int limit = dataPerSecond - threadNum > 0 ? dataPerSecond - threadNum : 0;
-        while (true) {
-            if (count.get() < limit) continue;
+        while (Sender.getIsStopped()) {
+            if (Sender.getCount() < limit) continue;
             long now = System.currentTimeMillis();
             long diff = now - lastTime;
             lastTime = now;
             if (diff > 1000) continue;
-            Pause.INSTANCE.setIsPaused(true);
+            Sender.setIsPaused(true);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            count.set(0);
-            Pause.INSTANCE.setIsPaused(false);
+            Sender.resetCount();
+            Sender.setIsPaused(false);
         }
     }
 }

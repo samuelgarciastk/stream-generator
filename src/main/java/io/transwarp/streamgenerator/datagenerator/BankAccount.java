@@ -26,7 +26,7 @@ public class BankAccount implements DataGen {
         Properties consumerProps = ConfLoader.loadProps("consumer.properties");
         consumerProps.put("max.poll.records", "1");
         consumerProps.put("group.id", "BankAccount");
-        consumer = new Consumer(Generator.topic, consumerProps);
+        consumer = new Consumer(Generator.props.getProperty("people.topic"), consumerProps);
     }
 
     @Override

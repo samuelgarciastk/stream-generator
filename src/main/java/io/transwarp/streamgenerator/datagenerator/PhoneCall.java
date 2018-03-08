@@ -17,13 +17,14 @@ import java.util.StringJoiner;
 public class PhoneCall implements DataGen {
     private int windowSize = Integer.parseInt(Generator.props.getProperty("phone.window.size"));
     private double ratio = Double.parseDouble(Generator.props.getProperty("phone.ratio"));
+    private int durationBase = Integer.parseInt(Generator.props.getProperty("phone.duration.base"));
     private Consumer consumer;
 
     public PhoneCall() {
         Properties consumerProps = ConfLoader.loadProps("consumer.properties");
         consumerProps.put("max.poll.records", windowSize);
         consumerProps.put("group.id", "PhoneCall");
-        consumer = new Consumer(Generator.topic, consumerProps);
+        consumer = new Consumer(Generator.props.getProperty("people.topic"), consumerProps);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class PhoneCall implements DataGen {
             line.add(people2[5]);
             line.add(TimeGenerator.randomDate((people1[4].compareTo(people2[4]) > 0 ? people1[4] : people2[4]), "20171231", "yyyyMMdd"));
             line.add(TimeGenerator.randomTime());
-            line.add(String.valueOf((int) (Math.random() * 60) + 1));
+            line.add(String.valueOf((int) (Math.random() * durationBase) + 1));
             result.add(line.toString());
         }
         return result.toString();

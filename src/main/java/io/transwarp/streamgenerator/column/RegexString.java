@@ -1,11 +1,13 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
-import com.mifmif.common.regex.Generex;
 import io.transwarp.streamgenerator.DataGen;
+import io.transwarp.streamgenerator.common.StringGenerator;
 
 /**
  * Author: stk
  * Date: 2018/3/8
+ * <p>
+ * Generate random String from a given regular expression.
  */
 public class RegexString implements DataGen {
     private String regex;
@@ -16,6 +18,6 @@ public class RegexString implements DataGen {
 
     @Override
     public String nextRecord() {
-        return new Generex(regex).random();
+        return StringGenerator.randomRegexString(regex);
     }
 }

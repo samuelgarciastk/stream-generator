@@ -1,4 +1,4 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.ConfLoader;
@@ -9,6 +9,9 @@ import java.util.List;
 /**
  * Author: stk
  * Date: 2018/3/6
+ * <p>
+ * Generate random Chinese name. The default length of given name is two.
+ * Configuration files: first_name, chinese_words
  */
 public class Name implements DataGen {
     private static final List<String> firstName = ConfLoader.loadConf("first_name");

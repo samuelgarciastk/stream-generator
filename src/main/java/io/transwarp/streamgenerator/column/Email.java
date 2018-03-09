@@ -1,4 +1,4 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.ConfLoader;
@@ -9,6 +9,10 @@ import java.util.List;
 /**
  * Author: stk
  * Date: 2018/3/7
+ * <p>
+ * Generate random e-mail.
+ * There are ten characters before '@' in default.
+ * Configuration files: email_suffix
  */
 public class Email implements DataGen {
     private static final List<String> suffix = ConfLoader.loadConf("email_suffix");

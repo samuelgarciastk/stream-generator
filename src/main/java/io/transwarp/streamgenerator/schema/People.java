@@ -1,8 +1,8 @@
-package io.transwarp.streamgenerator.schemagenerator;
+package io.transwarp.streamgenerator.schema;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.Generator;
-import io.transwarp.streamgenerator.columngenerator.*;
+import io.transwarp.streamgenerator.column.*;
 
 import java.util.StringJoiner;
 

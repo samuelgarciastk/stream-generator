@@ -1,10 +1,12 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
 import io.transwarp.streamgenerator.DataGen;
 
 /**
  * Author: stk
  * Date: 2018/3/6
+ * <p>
+ * Generate random gender.
  */
 public class Gender implements DataGen {
     @Override

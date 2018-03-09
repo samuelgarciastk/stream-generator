@@ -1,6 +1,5 @@
-package io.transwarp.streamgenerator.schemagenerator;
+package io.transwarp.streamgenerator.schema;
 
-import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.common.ConfLoader;

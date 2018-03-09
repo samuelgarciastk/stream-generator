@@ -1,13 +1,11 @@
-package io.transwarp.streamgenerator.schemagenerator;
+package io.transwarp.streamgenerator.schema;
 
-import io.transwarp.streamgenerator.Consumer;
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.Generator;
 import io.transwarp.streamgenerator.common.ConfLoader;
 import io.transwarp.streamgenerator.common.TimeGenerator;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -15,19 +13,16 @@ import java.util.stream.Collectors;
 /**
  * Author: stk
  * Date: 2018/3/5
+ * <p>
+ * Generate random bank account information.
+ * Format: 开户行, 卡号, 开户日期, 开户人身份证, 开户人姓名, 开户名手机号
+ * E.g., 中国工商银行,0000020622204934,19920321,230802195001016154,饶佳瑞,159612236886
+ * Configuration files: bank, bank_account_conf
  */
 public class BankAccount implements DataGen {
     private static final List<String> bankName = ConfLoader.loadConf("bank");
     private static final List<Integer> cardNum = ConfLoader.loadConf("bank_account_conf").stream().map(Integer::parseInt).collect(Collectors.toList());
     private AtomicLong base = new AtomicLong(Long.parseLong(Generator.props.getProperty("bank.account.base")));
-    private Consumer consumer;
-
-    public BankAccount() {
-        Properties consumerProps = ConfLoader.loadProps("consumer.properties");
-        consumerProps.put("max.poll.records", "1");
-        consumerProps.put("group.id", "BankAccount");
-        consumer = new Consumer(Generator.props.getProperty("people.topic"), consumerProps);
-    }
 
     @Override
     public String nextRecord() {

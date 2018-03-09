@@ -1,4 +1,4 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.common.TimeGenerator;
@@ -6,6 +6,10 @@ import io.transwarp.streamgenerator.common.TimeGenerator;
 /**
  * Author: stk
  * Date: 2018/3/8
+ * <p>
+ * Generate random timestamp from a given format.
+ * Format: {format} & {begin time} & {end time}
+ * E.g., yyyy-MM-dd HH:mm:ss & 1970-01-01 11:11:11 & 2017-12-31 22:22:22
  */
 public class Timestamp implements DataGen {
     private String format;

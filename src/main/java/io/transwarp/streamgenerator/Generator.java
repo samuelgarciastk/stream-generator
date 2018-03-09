@@ -1,7 +1,7 @@
 package io.transwarp.streamgenerator;
 
-import io.transwarp.streamgenerator.columngenerator.RegexString;
-import io.transwarp.streamgenerator.columngenerator.Timestamp;
+import io.transwarp.streamgenerator.column.RegexString;
+import io.transwarp.streamgenerator.column.Timestamp;
 import io.transwarp.streamgenerator.common.ConfLoader;
 
 import java.util.ArrayList;
@@ -10,7 +10,6 @@ import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: stk
@@ -45,10 +44,10 @@ public class Generator {
                 }
                 default: {
                     try {
-                        data.add((DataGen) Class.forName("io.transwarp.streamgenerator.columngenerator." + name).getConstructor().newInstance());
+                        data.add((DataGen) Class.forName("io.transwarp.streamgenerator.column." + name).getConstructor().newInstance());
                     } catch (ClassNotFoundException e) {
                         try {
-                            data.add((DataGen) Class.forName("io.transwarp.streamgenerator.schemagenerator." + name).getConstructor().newInstance());
+                            data.add((DataGen) Class.forName("io.transwarp.streamgenerator.schema." + name).getConstructor().newInstance());
                         } catch (Exception e1) {
                             System.out.println("Class not found: " + name);
                             e1.printStackTrace();

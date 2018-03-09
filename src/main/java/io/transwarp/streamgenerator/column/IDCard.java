@@ -1,4 +1,4 @@
-package io.transwarp.streamgenerator.columngenerator;
+package io.transwarp.streamgenerator.column;
 
 import io.transwarp.streamgenerator.DataGen;
 import io.transwarp.streamgenerator.Generator;
@@ -12,6 +12,9 @@ import java.util.List;
 /**
  * Author: stk
  * Date: 2018/3/7
+ * <p>
+ * Generate random Chinese ID number.
+ * Configuration files: address_code
  */
 public class IDCard implements DataGen {
     private static final List<String> addressCode = ConfLoader.loadConf("address_code", 2, 0);

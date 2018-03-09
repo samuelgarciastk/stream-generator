@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class IDCard implements DataGen {
     private static final List<String> addressCode = ConfLoader.loadConf("address_code", 2, 0);
-    private static final String beginDate = Generator.props.getProperty("people.begin.date");
-    private static final String endDate = Generator.props.getProperty("people.end.date");
+    private static final String beginDate = Generator.props.getProperty("people.birthday.begin");
+    private static final String endDate = Generator.props.getProperty("people.birthday.end");
 
     private char checkCode(String id) {
         int[] weight = {7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2};

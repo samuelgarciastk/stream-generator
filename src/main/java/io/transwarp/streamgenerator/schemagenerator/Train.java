@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 
 /**
  * Author: stk
- * Date: 2018/3/8
+ * Date: 2018/3/9
  */
-public class Bus implements DataGen {
-    private static final List<String> timeTable = ConfLoader.loadData("bus");
-    private static final List<Integer> weight = ConfLoader.loadConf("bus_travel").stream().map(Integer::parseInt).collect(Collectors.toList());
+public class Train implements DataGen {
+    private static final List<String> timeTable = ConfLoader.loadData("train");
+    private static final List<Integer> weight = ConfLoader.loadConf("train_travel").stream().map(Integer::parseInt).collect(Collectors.toList());
     private Consumer consumer;
 
-    public Bus() {
+    public Train() {
         Properties consumerProps = ConfLoader.loadProps("consumer.properties");
         consumerProps.put("max.poll.records", "1");
-        consumerProps.put("group.id", "Bus");
+        consumerProps.put("group.id", "Train");
         consumer = new Consumer(Generator.props.getProperty("people.topic"), consumerProps);
     }
 
@@ -34,19 +34,19 @@ public class Bus implements DataGen {
         StringJoiner result = new StringJoiner(System.getProperty("line.separator"));
         for (int i = 0; i < size; i++) {
             StringJoiner line = new StringJoiner(Generator.delimiter);
-            String[] bus = timeTable.get((int) (Math.random() * timeTable.size())).split(",");
+            String[] train = timeTable.get((int) (Math.random() * timeTable.size())).split(",");
             line.add(people[0]);
             line.add(people[1]);
             line.add(people[3]);
+            line.add(train[0]);
             line.add(TimeGenerator.randomDateWithTrans(people[4],
                     Generator.props.getProperty("travel.date.end"),
                     Generator.props.getProperty("travel.date.format")));
-            line.add(String.valueOf((int) (Math.random() * 5 + 1)));
-            line.add(bus[0]);
-            line.add(bus[1]);
-            line.add(String.valueOf((int) (Math.random() * 60 + 1)));
-            line.add(bus[2]);
-            line.add(bus[3]);
+            line.add(String.valueOf((int) (Math.random() * 16 + 1)));
+            line.add(String.valueOf((int) (Math.random() * 40 + 1)));
+            line.add(train[1]);
+            line.add(train[2]);
+            line.add(train[3]);
             result.add(line.toString());
         }
         return result.toString();

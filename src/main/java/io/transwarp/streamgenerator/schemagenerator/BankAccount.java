@@ -37,8 +37,8 @@ public class BankAccount implements DataGen {
         for (int i = 0; i < size; i++) {
             StringJoiner line = new StringJoiner(Generator.delimiter);
             line.add(bankName.get((int) (Math.random() * bankName.size())));
-            line.add(String.format("%016d", base.addAndGet((int) (Math.random() * 1000 + 1))));
-            line.add(TimeGenerator.randomDate(people[4], "20171231", "yyyyMMdd"));
+            line.add(String.format("%0" + Generator.props.getProperty("bank.account.id.length") + "d", base.addAndGet((int) (Math.random() * 1000 + 1))));
+            line.add(TimeGenerator.randomDate(people[4], Generator.props.getProperty("bank.account.date.end"), "yyyyMMdd"));
             line.add(people[3]);
             line.add(people[0]);
             line.add(people[5]);

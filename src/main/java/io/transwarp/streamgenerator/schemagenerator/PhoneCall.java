@@ -44,7 +44,9 @@ public class PhoneCall implements DataGen {
             line.add(people2[0]);
             line.add(people2[3]);
             line.add(people2[5]);
-            line.add(TimeGenerator.randomDate((people1[4].compareTo(people2[4]) > 0 ? people1[4] : people2[4]), "20171231", "yyyyMMdd"));
+            line.add(TimeGenerator.randomDateWithTrans(people1[4].compareTo(people2[4]) > 0 ? people1[4] : people2[4],
+                    Generator.props.getProperty("phone.date.end"),
+                    Generator.props.getProperty("phone.date.format")));
             line.add(TimeGenerator.randomTime());
             line.add(String.valueOf((int) (Math.random() * durationBase) + 1));
             result.add(line.toString());

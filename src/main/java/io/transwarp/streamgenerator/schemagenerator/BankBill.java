@@ -79,7 +79,9 @@ public class BankBill implements DataGen {
             line.add(transactionMode);
             line.add(transferChannel);
             line.add(transferMode);
-            line.add(TimeGenerator.randomDate((date1.compareTo(date2) > 0 ? date1 : date2), "20171231", "yyyyMMdd"));
+            line.add(TimeGenerator.randomDateWithTrans(date1.compareTo(date2) > 0 ? date1 : date2,
+                    Generator.props.getProperty("bank.bill.date.end"),
+                    Generator.props.getProperty("bank.bill.date.format")));
             line.add(StringGenerator.randomUpper(10));
             line.add(String.format("%.2f", bill * charge));
             result.add(line.toString());

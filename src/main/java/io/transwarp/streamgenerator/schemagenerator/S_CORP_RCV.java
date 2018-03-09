@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class S_CORP_RCV implements DataGen {
     private AtomicLong base = new AtomicLong(Long.parseLong(Generator.props.getProperty("safe.base")));
     private SafeInfo info = new SafeInfo();
-    private String beginDate = Generator.props.getProperty("safe.begin.year") + "-01-01";
-    private String endDate = Generator.props.getProperty("safe.end.year") + "-12-31";
+    private String beginDate = Generator.props.getProperty("safe.date.begin.year") + "0101";
+    private String endDate = Generator.props.getProperty("safe.date.end.year") + "1231";
     private String prefix = Generator.props.getProperty("safe.prefix");
 
     @Override
@@ -25,7 +25,7 @@ public class S_CORP_RCV implements DataGen {
         StringJoiner result = new StringJoiner(Generator.delimiter);
         result.add(String.format("%022d", base.addAndGet((int) (Math.random() * 500 + 1))));
         result.add(prefix + StringGenerator.randomNumber(9 - prefix.length()));
-        result.add(TimeGenerator.randomDate(beginDate, endDate, "yyyy-MM-dd"));
+        result.add(TimeGenerator.randomDateWithTrans(beginDate, endDate, Generator.props.getProperty("safe.date.format")));
         result.add(info.nextRecord());
         result.add(String.valueOf((int) (Math.random() * 10000)));
         result.add(StringGenerator.randomNumber(6));

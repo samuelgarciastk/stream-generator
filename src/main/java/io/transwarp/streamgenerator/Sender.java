@@ -17,8 +17,8 @@ public class Sender implements Runnable {
     private static final Producer<String, String> producer = new KafkaProducer<>(props);
     private static final AtomicInteger count = new AtomicInteger(0);
     private static final AtomicInteger sum = new AtomicInteger(0);
-    private static boolean isPaused = true;
-    private static boolean isStopped = false;
+    private static volatile boolean isPaused = true;
+    private static volatile boolean isStopped = false;
     private Generator generator;
 
     public Sender(Generator generator) {

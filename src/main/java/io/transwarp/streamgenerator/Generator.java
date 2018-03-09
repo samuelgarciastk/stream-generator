@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Author: stk
@@ -82,10 +83,11 @@ public class Generator {
         Sender.setIsPaused(false);
         long lastTime = System.currentTimeMillis();
         int limit = dataPerSecond - threadNum > 0 ? dataPerSecond - threadNum : 0;
-        while (Sender.getIsStopped()) {
+        while (!Sender.getIsStopped()) {
             if (Sender.getCount() < limit) continue;
             long now = System.currentTimeMillis();
             long diff = now - lastTime;
+
             lastTime = now;
             if (diff > 1000) continue;
             Sender.setIsPaused(true);

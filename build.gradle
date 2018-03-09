@@ -1,5 +1,5 @@
 group 'io.transwarp'
-version '0.1.0'
+version '1.0.0'
 
 apply plugin: 'java'
 
@@ -10,7 +10,6 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'lib', include: '*.jar')
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '1.0.0'
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.10.0'

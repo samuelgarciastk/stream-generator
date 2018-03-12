@@ -1,1 +1,3 @@
-rootProject.name = 'streamGenerator'
+rootProject.name = 'stream-generator'
+include 'stream-gui'
+include 'stream-cli'

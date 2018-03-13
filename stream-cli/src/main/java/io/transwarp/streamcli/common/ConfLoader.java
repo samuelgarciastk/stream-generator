@@ -1,9 +1,7 @@
 package io.transwarp.streamcli.common;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Author: stk
@@ -125,5 +123,29 @@ public class ConfLoader {
             e.printStackTrace();
         }
         return list;
+    }
+
+    /**
+     * Convert file into a Map.
+     * Format: string1:string2;string3
+     * The delimiter between key and value is colon. And only the first colon works.
+     * The delimiter among values is semicolon. It is used in further parse.
+     * Output: string1 -> string2;string3
+     *
+     * @param name file name
+     * @return String Map
+     */
+    public static Map<String, String> loadMap(String name) {
+        Map<String, String> map = new LinkedHashMap<>();
+        try (InputStreamReader in = getConf(name); BufferedReader bf = new BufferedReader(in)) {
+            String line;
+            while ((line = bf.readLine()) != null) {
+                String[] entry = line.split(":", 2);
+                map.put(entry[0], entry[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }

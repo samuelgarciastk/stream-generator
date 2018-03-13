@@ -20,6 +20,7 @@ public class SenderPanel extends JPanel {
     private static final Map<String, String> templateName = ConfLoader.loadMap("template");
     private JPanel basicPane;
     private Box advancedPane;
+    private JTextField topic;
     private JComboBox<String> template;
     private List<JTextField> advanced;
 
@@ -41,6 +42,7 @@ public class SenderPanel extends JPanel {
         desc.setText(templateName.entrySet().iterator().next().getValue().split(";")[1]);
 
         template = new JComboBox<>();
+        setFixedSize(template, new Dimension(200, 30));
         templateName.forEach((k, v) -> template.addItem(k));
         template.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -48,24 +50,39 @@ public class SenderPanel extends JPanel {
             }
         });
 
-        JLabel label1 = new JLabel("数据模板：");
-        JLabel label2 = new JLabel("模板内容：");
+        topic = new JTextField(Generator.props.getProperty("topic"));
+        setFixedSize(topic, new Dimension(200, 30));
 
-        Box line1 = Box.createHorizontalBox();
-        line1.add(label1);
-        line1.add(Box.createHorizontalStrut(10));
-        line1.add(template);
-        line1.add(Box.createHorizontalGlue());
+        JLabel label_topic = new JLabel("Topic：");
+        JLabel label_template = new JLabel("数据模板：");
+        JLabel label_content = new JLabel("模板内容：");
+        setFixedSize(label_topic, new Dimension(100, 30));
+        setFixedSize(label_template, new Dimension(100, 30));
+        setFixedSize(label_content, new Dimension(100, 30));
 
-        Box line2 = Box.createHorizontalBox();
-        line2.add(label2);
-        line2.add(Box.createHorizontalGlue());
+        Box box_topic = Box.createHorizontalBox();
+        box_topic.add(label_topic);
+        box_topic.add(Box.createHorizontalStrut(10));
+        box_topic.add(topic);
+        box_topic.add(Box.createHorizontalGlue());
+
+        Box box_template = Box.createHorizontalBox();
+        box_template.add(label_template);
+        box_template.add(Box.createHorizontalStrut(10));
+        box_template.add(template);
+        box_template.add(Box.createHorizontalGlue());
+
+        Box box_content = Box.createHorizontalBox();
+        box_content.add(label_content);
+        box_content.add(Box.createHorizontalGlue());
 
         Box templatePane = Box.createVerticalBox();
         templatePane.setBorder(new EmptyBorder(20, 20, 20, 20));
-        templatePane.add(line1);
+        templatePane.add(box_topic);
         templatePane.add(Box.createVerticalStrut(10));
-        templatePane.add(line2);
+        templatePane.add(box_template);
+        templatePane.add(Box.createVerticalStrut(10));
+        templatePane.add(box_content);
         templatePane.add(Box.createVerticalStrut(10));
         templatePane.add(desc);
         basicPane.add(templatePane, BorderLayout.CENTER);
@@ -73,25 +90,23 @@ public class SenderPanel extends JPanel {
 
     private void initControlPane() {
         JButton start = new JButton("开始");
-        start.setFocusPainted(false);
         JButton stop = new JButton("停止");
-        stop.setFocusPainted(false);
         JButton advanced = new JButton("<<");
+        start.setFocusPainted(false);
+        stop.setFocusPainted(false);
         advanced.setFocusPainted(false);
+        start.setEnabled(true);
+        stop.setEnabled(false);
 
         start.addActionListener(e -> {
-            start.setForeground(Color.WHITE);
-            start.setBackground(Color.RED);
-            stop.setForeground(null);
-            stop.setBackground(null);
+            start.setEnabled(false);
+            stop.setEnabled(true);
             System.out.println("Begin");
         });
 
         stop.addActionListener(e -> {
-            stop.setForeground(Color.WHITE);
-            stop.setBackground(Color.RED);
-            start.setForeground(null);
-            start.setBackground(null);
+            stop.setEnabled(false);
+            start.setEnabled(true);
             System.out.println("Stop");
         });
 
@@ -125,7 +140,7 @@ public class SenderPanel extends JPanel {
         advanced.add(new JTextField(Generator.props.getProperty("data.per.second")));
         advanced.add(new JTextField(Generator.props.getProperty("partition.num")));
         advanced.add(new JTextField(Generator.props.getProperty("replication.num")));
-        advanced.forEach(i -> i.setPreferredSize(new Dimension(50, 30)));
+        advanced.forEach(i -> setFixedSize(i, new Dimension(60, 30)));
 
         List<JLabel> labels = new ArrayList<>();
         labels.add(new JLabel("线程数量："));
@@ -133,7 +148,7 @@ public class SenderPanel extends JPanel {
         labels.add(new JLabel("发送速率(条/秒)："));
         labels.add(new JLabel("Topic分区数量："));
         labels.add(new JLabel("Topic副本数量："));
-        labels.forEach(i -> i.setPreferredSize(new Dimension(120, 30)));
+        labels.forEach(i -> setFixedSize(i, new Dimension(120, 30)));
 
         List<Box> lines = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -152,5 +167,11 @@ public class SenderPanel extends JPanel {
         });
         advancedPane.setVisible(false);
         add(advancedPane, BorderLayout.EAST);
+    }
+
+    private void setFixedSize(JComponent component, Dimension dimension) {
+        component.setMinimumSize(dimension);
+        component.setPreferredSize(dimension);
+        component.setMaximumSize(dimension);
     }
 }

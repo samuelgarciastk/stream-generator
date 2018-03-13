@@ -1,10 +1,14 @@
 package io.transwarp.streamgui;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Enumeration;
 
 /**
  * Author: stk
@@ -62,6 +66,17 @@ public class MainFrame extends JFrame {
         PrintStream textAreaOut = new PrintStream(textAreaStream);
         System.setOut(textAreaOut);
         System.setErr(textAreaOut);
+        /*
+        Set global font.
+         */
+        FontUIResource fontUIResource = new FontUIResource(new Font("宋体", Font.PLAIN, 14));
+        for (Enumeration keys = UIManager.getDefaults().keys(); keys.hasMoreElements(); ) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof FontUIResource) {
+                UIManager.put(key, fontUIResource);
+            }
+        }
         new MainFrame();
     }
 
@@ -83,6 +98,10 @@ public class MainFrame extends JFrame {
         menuBar.add(menu2);
 
         setJMenuBar(menuBar);
+
+        item1_1.addActionListener(e -> {
+            System.exit(0);
+        });
     }
 
     private void initPanel() {

@@ -1,13 +1,13 @@
 package io.transwarp.streamcli.column;
 
 import io.transwarp.streamcli.common.ConfLoader;
+import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.TimeGenerator;
-import io.transwarp.streamcli.common.DataGen;
-import io.transwarp.streamcli.Generator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -17,9 +17,15 @@ import java.util.List;
  * Configuration files: address_code
  */
 public class IDCard implements DataGen {
-    private static final List<String> addressCode = ConfLoader.loadConf("address_code", 2, 0);
-    private final String beginDate = Generator.props.getProperty("people.birthday.begin");
-    private final String endDate = Generator.props.getProperty("people.birthday.end");
+    private List<String> addressCode;
+    private String beginDate;
+    private String endDate;
+
+    public IDCard(Properties props) {
+        addressCode = ConfLoader.loadConf("address_code", 2, 0);
+        beginDate = props.getProperty("people.birthday.begin");
+        endDate = props.getProperty("people.birthday.end");
+    }
 
     private char checkCode(String id) {
         int[] weight = {7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2};

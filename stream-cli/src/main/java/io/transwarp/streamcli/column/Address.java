@@ -1,10 +1,11 @@
 package io.transwarp.streamcli.column;
 
 import io.transwarp.streamcli.common.ConfLoader;
-import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.DataGen;
+import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -15,7 +16,11 @@ import java.util.List;
  * Configuration files: address_code
  */
 public class Address implements DataGen {
-    private static final List<String> addresses = ConfLoader.loadConf("address_code", 2, 1);
+    private List<String> addresses;
+
+    public Address(Properties props) {
+        addresses = ConfLoader.loadConf("address_code", 2, 1);
+    }
 
     @Override
     public String nextRecord() {

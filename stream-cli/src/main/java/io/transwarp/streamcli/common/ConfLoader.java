@@ -1,7 +1,9 @@
 package io.transwarp.streamcli.common;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -126,26 +128,17 @@ public class ConfLoader {
     }
 
     /**
-     * Convert file into a Map.
-     * Format: string1:string2;string3
-     * The delimiter between key and value is colon. And only the first colon works.
-     * The delimiter among values is semicolon. It is used in further parse.
-     * Output: string1 -> string2;string3
+     * Write properties into a specific file
      *
-     * @param name file name
-     * @return String Map
+     * @param name  file name
+     * @param props properties
      */
-    public static Map<String, String> loadMap(String name) {
-        Map<String, String> map = new LinkedHashMap<>();
-        try (InputStreamReader in = getConf(name); BufferedReader bf = new BufferedReader(in)) {
-            String line;
-            while ((line = bf.readLine()) != null) {
-                String[] entry = line.split(":", 2);
-                map.put(entry[0], entry[1]);
-            }
+    public static void writeProps(String name, Properties props) {
+        try (OutputStream out = new FileOutputStream(name)) {
+            props.store(out, null);
         } catch (IOException e) {
+            System.out.println("Cannot create property: " + name);
             e.printStackTrace();
         }
-        return map;
     }
 }

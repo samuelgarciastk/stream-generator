@@ -1,12 +1,12 @@
 package io.transwarp.streamcli.schema;
 
-import io.transwarp.streamcli.common.DataGen;
-import io.transwarp.streamcli.Generator;
 import io.transwarp.streamcli.common.ConfLoader;
+import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.TimeGenerator;
 
 import java.util.List;
+import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -19,22 +19,31 @@ import java.util.StringJoiner;
  * Configuration files; flight
  */
 public class Flight implements DataGen {
-    private static final List<String> timeTable = ConfLoader.loadData("flight");
-    private People people = new People();
+    private List<String> timeTable;
+    private People people;
+    private String delimiter;
+    private String endDate;
+    private String dateFormat;
+
+    public Flight(Properties props) {
+        timeTable = ConfLoader.loadData("flight");
+        people = new People(props);
+        delimiter = props.getProperty("delimiter");
+        endDate = props.getProperty("travel.date.end");
+        dateFormat = props.getProperty("travel.date.format");
+    }
 
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(Generator.delimiter);
-        String[] peopleArr = people.nextRecord().split(Generator.delimiter);
+        StringJoiner result = new StringJoiner(delimiter);
+        String[] peopleArr = people.nextRecord().split(delimiter);
         String[] flight = timeTable.get((int) (Math.random() * timeTable.size())).split(",");
         result.add(peopleArr[0]);
         result.add(StringGenerator.randomUpper((int) (Math.random() * 10 + 4)));
         result.add(peopleArr[1]);
         result.add(peopleArr[3]);
         result.add(flight[2]);
-        result.add(TimeGenerator.randomDateWithTrans(peopleArr[4],
-                Generator.props.getProperty("travel.date.end"),
-                Generator.props.getProperty("travel.date.format")));
+        result.add(TimeGenerator.randomDateWithTrans(peopleArr[4], endDate, dateFormat));
         result.add((int) (Math.random() * 60 + 1) + StringGenerator.randomString(1, 36, 43));
         result.add(flight[3]);
         result.add(flight[0]);

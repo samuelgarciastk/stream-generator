@@ -18,18 +18,21 @@ import java.util.concurrent.ExecutionException;
  * Kafka topic manager.
  */
 public class Topic {
-    private static final Properties props = ConfLoader.loadProps("producer.properties");
+    private Properties generatorProps;
     private AdminClient admin;
 
     public Topic() {
+        generatorProps = ConfLoader.loadProps("generator.properties");
+        Properties producerProps = ConfLoader.loadProps("producer.properties");
         Properties props = new Properties();
-        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, props.getProperty("bootstrap.servers"));
+        props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, producerProps.getProperty("bootstrap.servers"));
         admin = AdminClient.create(props);
     }
 
-    public Set<String> listTopics() {
+    public boolean checkExist() {
         try {
-            return admin.listTopics().names().get();
+            Set<String> topics = admin.listTopics().names().get();
+            return topics.contains(generatorProps.getProperty("topic"));
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -38,13 +41,14 @@ public class Topic {
     }
 
     public boolean createTopic() {
-        int partition = Integer.parseInt(Generator.props.getProperty("partition.num"));
-        short replication = Short.parseShort(Generator.props.getProperty("replication.num"));
-        CreateTopicsResult result = admin.createTopics(Collections.singletonList(new NewTopic(Generator.topic, partition, replication)));
+        String topic = generatorProps.getProperty("topic");
+        int partition = Integer.parseInt(generatorProps.getProperty("partition.num"));
+        short replication = Short.parseShort(generatorProps.getProperty("replication.num"));
+        CreateTopicsResult result = admin.createTopics(Collections.singletonList(new NewTopic(topic, partition, replication)));
         try {
             result.all().get();
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Topic " + Generator.topic + " already exists.");
+            System.out.println("Topic " + topic + " already exists.");
             return false;
         }
         return true;

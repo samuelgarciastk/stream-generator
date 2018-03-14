@@ -1,10 +1,10 @@
 package io.transwarp.streamcli.schema;
 
 import io.transwarp.streamcli.common.DataGen;
-import io.transwarp.streamcli.Generator;
 import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.TimeGenerator;
 
+import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -16,15 +16,27 @@ import java.util.StringJoiner;
  * E.g., 0001000235655286,池澉森,0001000235077040,严铠征,356,转账,跨行转账,PC,UKEY,20111107,,
  */
 public class BankBill implements DataGen {
-    private final int billBase = Integer.parseInt(Generator.props.getProperty("bank.bill.base"));
-    private final double charge = Double.parseDouble(Generator.props.getProperty("bank.bill.charge"));
-    private BankAccount bankAccount = new BankAccount();
+    private BankAccount bankAccount;
+    private String delimiter;
+    private int billBase;
+    private double charge;
+    private String endDate;
+    private String dateFormat;
+
+    public BankBill(Properties props) {
+        bankAccount = new BankAccount(props);
+        delimiter = props.getProperty("delimiter");
+        billBase = Integer.parseInt(props.getProperty("bank.bill.base"));
+        charge = Double.parseDouble(props.getProperty("bank.bill.charge"));
+        endDate = props.getProperty("bank.bill.date.end");
+        dateFormat = props.getProperty("bank.bill.date.format");
+    }
 
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(Generator.delimiter);
-        String[] account1 = bankAccount.nextRecord().split(Generator.delimiter);
-        String[] account2 = bankAccount.nextRecord().split(Generator.delimiter);
+        StringJoiner result = new StringJoiner(delimiter);
+        String[] account1 = bankAccount.nextRecord().split(delimiter);
+        String[] account2 = bankAccount.nextRecord().split(delimiter);
 
         String bankName1 = account1[0];
         String cardNum1 = account1[1];
@@ -67,9 +79,7 @@ public class BankBill implements DataGen {
         result.add(transactionMode);
         result.add(transferChannel);
         result.add(transferMode);
-        result.add(TimeGenerator.randomDateWithTrans(date1.compareTo(date2) > 0 ? date1 : date2,
-                Generator.props.getProperty("bank.bill.date.end"),
-                Generator.props.getProperty("bank.bill.date.format")));
+        result.add(TimeGenerator.randomDateWithTrans(date1.compareTo(date2) > 0 ? date1 : date2, endDate, dateFormat));
         result.add(StringGenerator.randomUpper(10));
         result.add(String.format("%.2f", bill * charge));
         return result.toString();

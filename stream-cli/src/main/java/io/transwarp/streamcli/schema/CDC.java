@@ -1,11 +1,11 @@
 package io.transwarp.streamcli.schema;
 
 import io.transwarp.streamcli.common.DataGen;
-import io.transwarp.streamcli.Generator;
 import io.transwarp.streamcli.common.StringGenerator;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.StringJoiner;
 
 /**
@@ -16,12 +16,17 @@ import java.util.StringJoiner;
  * E.g., "2016-06-12 11:02:03","1465700523694","U","CDC_MIRROR","7325830911134034944","ZQU","6217844638089027584","MU"
  */
 public class CDC implements DataGen {
+    private String delimiter;
     private ChangeType lastChangeType;
     private long baseTime = System.currentTimeMillis();
 
+    public CDC(Properties props) {
+        delimiter = props.getProperty("delimiter");
+    }
+
     @Override
     public String nextRecord() {
-        StringJoiner result = new StringJoiner(Generator.delimiter);
+        StringJoiner result = new StringJoiner(delimiter);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         long time = getNextTime();
         String timeStr = sdf.format(new Date(time));

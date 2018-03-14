@@ -1,9 +1,10 @@
 package io.transwarp.streamcli.column;
 
-import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.ConfLoader;
+import io.transwarp.streamcli.common.DataGen;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -13,7 +14,11 @@ import java.util.List;
  * Configuration files: cities
  */
 public class City implements DataGen {
-    private static final List<String> cities = ConfLoader.loadConf("cities");
+    private List<String> cities;
+
+    public City(Properties props) {
+        cities = ConfLoader.loadConf("cities");
+    }
 
     @Override
     public String nextRecord() {

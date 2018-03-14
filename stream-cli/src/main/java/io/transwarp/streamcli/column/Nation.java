@@ -4,6 +4,7 @@ import io.transwarp.streamcli.common.ConfLoader;
 import io.transwarp.streamcli.common.DataGen;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -13,7 +14,11 @@ import java.util.List;
  * Configuration files: nation
  */
 public class Nation implements DataGen {
-    private static final List<String> nation = ConfLoader.loadConf("nation");
+    private List<String> nation;
+
+    public Nation(Properties props) {
+        nation = ConfLoader.loadConf("nation");
+    }
 
     @Override
     public String nextRecord() {

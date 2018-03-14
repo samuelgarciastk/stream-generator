@@ -3,19 +3,15 @@ package io.transwarp.streamgui;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.Enumeration;
 
 /**
  * Author: stk
  * Date: 2018/3/13
+ * <p>
+ * Entrance frame.
  */
 public class MainFrame extends JFrame {
-    private static JTextArea textArea;
     private JSplitPane splitPane;
     private JPanel panel;
 
@@ -36,36 +32,10 @@ public class MainFrame extends JFrame {
 
         pack();
         setVisible(true);
-
-        splitPane.setDividerLocation(0.5);
+        splitPane.setDividerLocation(0.6);
     }
 
     public static void main(String[] args) {
-        /*
-        Redirect System.out.
-         */
-        OutputStream textAreaStream = new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                textArea.append(String.valueOf((char) b));
-                textArea.setCaretPosition(textArea.getText().length());
-            }
-
-            @Override
-            public void write(byte[] b) throws IOException {
-                textArea.append(new String(b));
-                textArea.setCaretPosition(textArea.getText().length());
-            }
-
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                textArea.append(new String(b, off, len));
-                textArea.setCaretPosition(textArea.getText().length());
-            }
-        };
-        PrintStream textAreaOut = new PrintStream(textAreaStream);
-        System.setOut(textAreaOut);
-        System.setErr(textAreaOut);
         /*
         Set global font.
          */
@@ -99,9 +69,7 @@ public class MainFrame extends JFrame {
 
         setJMenuBar(menuBar);
 
-        item1_1.addActionListener(e -> {
-            System.exit(0);
-        });
+        item1_1.addActionListener(e -> System.exit(0));
     }
 
     private void initPanel() {
@@ -114,23 +82,9 @@ public class MainFrame extends JFrame {
     private void initSplitPane() {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         splitPane.setOneTouchExpandable(true);
-
         splitPane.setLeftComponent(panel);
-
-        textArea = new JTextArea();
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(textArea);
-        splitPane.setRightComponent(scrollPane);
-
+        ConsolePane consolePane = ConsolePane.getInstance();
+        splitPane.setRightComponent(consolePane);
         setContentPane(splitPane);
-    }
-
-    private void appendMsg(String msg) {
-        textArea.append(msg);
-        textArea.append(System.getProperty("line.separator"));
-        textArea.setCaretPosition(textArea.getText().length());
     }
 }

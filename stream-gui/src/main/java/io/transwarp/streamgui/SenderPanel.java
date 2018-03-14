@@ -1,6 +1,7 @@
 package io.transwarp.streamgui;
 
 import io.transwarp.streamcli.Generator;
+import io.transwarp.streamcli.Topic;
 import io.transwarp.streamcli.common.ConfLoader;
 
 import javax.swing.*;
@@ -9,22 +10,32 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Author: stk
  * Date: 2018/3/12
  */
 public class SenderPanel extends JPanel {
-    private static final Map<String, String> templateName = ConfLoader.loadMap("template");
+    private Properties generatorProps;
+    private Properties producerProps;
+    private AtomicBoolean stopFlag;
     private JPanel basicPane;
     private Box advancedPane;
-    private JTextField topic;
     private JComboBox<String> template;
+    private List<JTextField> basic;
     private List<JTextField> advanced;
+    private JButton start;
+    private JButton stop;
 
     public SenderPanel() {
+        generatorProps = ConfLoader.loadProps("generator.properties");
+        producerProps = ConfLoader.loadProps("producer.properties");
+        stopFlag = new AtomicBoolean(false);
+
         setLayout(new BorderLayout());
         basicPane = new JPanel(new BorderLayout());
         initTemplatePane();
@@ -35,49 +46,62 @@ public class SenderPanel extends JPanel {
     }
 
     private void initTemplatePane() {
+        Template currentTemplate = Template.valueOf(generatorProps.getProperty("template"));
+
         JTextArea desc = new JTextArea();
         desc.setEditable(false);
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
-        desc.setText(templateName.entrySet().iterator().next().getValue().split(";")[1]);
+        desc.setText(currentTemplate.getDesc());
 
         template = new JComboBox<>();
         setFixedSize(template, new Dimension(200, 30));
-        templateName.forEach((k, v) -> template.addItem(k));
+        Arrays.stream(Template.values()).forEach(i -> template.addItem(i.getName()));
+        template.setSelectedItem(currentTemplate.getName());
         template.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                desc.setText(templateName.get(String.valueOf(e.getItem())).split(";")[1]);
+                desc.setText(Template.getEnum(String.valueOf(e.getItem())).getDesc());
             }
         });
 
-        topic = new JTextField(Generator.props.getProperty("topic"));
-        setFixedSize(topic, new Dimension(200, 30));
+        basic = new ArrayList<>();
+        basic.add(new JTextField(producerProps.getProperty("bootstrap.servers")));
+        basic.add(new JTextField(generatorProps.getProperty("topic")));
+        basic.forEach(i -> setFixedSize(i, new Dimension(200, 30)));
 
-        JLabel label_topic = new JLabel("Topic：");
-        JLabel label_template = new JLabel("数据模板：");
-        JLabel label_content = new JLabel("模板内容：");
-        setFixedSize(label_topic, new Dimension(100, 30));
-        setFixedSize(label_template, new Dimension(100, 30));
-        setFixedSize(label_content, new Dimension(100, 30));
+        List<JLabel> labels = new ArrayList<>();
+        labels.add(new JLabel("Servers："));
+        labels.add(new JLabel("Topic："));
+        labels.add(new JLabel("数据模板："));
+        labels.add(new JLabel("模板内容："));
+        labels.forEach(i -> setFixedSize(i, new Dimension(100, 30)));
+
+        Box box_servers = Box.createHorizontalBox();
+        box_servers.add(labels.get(0));
+        box_servers.add(Box.createHorizontalStrut(10));
+        box_servers.add(basic.get(0));
+        box_servers.add(Box.createHorizontalGlue());
 
         Box box_topic = Box.createHorizontalBox();
-        box_topic.add(label_topic);
+        box_topic.add(labels.get(1));
         box_topic.add(Box.createHorizontalStrut(10));
-        box_topic.add(topic);
+        box_topic.add(basic.get(1));
         box_topic.add(Box.createHorizontalGlue());
 
         Box box_template = Box.createHorizontalBox();
-        box_template.add(label_template);
+        box_template.add(labels.get(2));
         box_template.add(Box.createHorizontalStrut(10));
         box_template.add(template);
         box_template.add(Box.createHorizontalGlue());
 
         Box box_content = Box.createHorizontalBox();
-        box_content.add(label_content);
+        box_content.add(labels.get(3));
         box_content.add(Box.createHorizontalGlue());
 
         Box templatePane = Box.createVerticalBox();
         templatePane.setBorder(new EmptyBorder(20, 20, 20, 20));
+        templatePane.add(box_servers);
+        templatePane.add(Box.createVerticalStrut(10));
         templatePane.add(box_topic);
         templatePane.add(Box.createVerticalStrut(10));
         templatePane.add(box_template);
@@ -89,8 +113,8 @@ public class SenderPanel extends JPanel {
     }
 
     private void initControlPane() {
-        JButton start = new JButton("开始");
-        JButton stop = new JButton("停止");
+        start = new JButton("开始");
+        stop = new JButton("停止");
         JButton advanced = new JButton("<<");
         start.setFocusPainted(false);
         stop.setFocusPainted(false);
@@ -99,15 +123,16 @@ public class SenderPanel extends JPanel {
         stop.setEnabled(false);
 
         start.addActionListener(e -> {
-            start.setEnabled(false);
-            stop.setEnabled(true);
-            System.out.println("Begin");
+            System.out.println("Start");
+            setAbleToStart(false);
+            stopFlag.set(false);
+            genProps();
+            send();
         });
 
         stop.addActionListener(e -> {
-            stop.setEnabled(false);
-            start.setEnabled(true);
-            System.out.println("Stop");
+            stopFlag.set(true);
+            setAbleToStart(true);
         });
 
         advanced.addActionListener(e -> {
@@ -135,12 +160,12 @@ public class SenderPanel extends JPanel {
 
     private void initAdvancedPane() {
         advanced = new ArrayList<>();
-        advanced.add(new JTextField(Generator.props.getProperty("thread.num")));
-        advanced.add(new JTextField(Generator.props.getProperty("delimiter")));
-        advanced.add(new JTextField(Generator.props.getProperty("data.per.second")));
-        advanced.add(new JTextField(Generator.props.getProperty("partition.num")));
-        advanced.add(new JTextField(Generator.props.getProperty("replication.num")));
-        advanced.forEach(i -> setFixedSize(i, new Dimension(60, 30)));
+        advanced.add(new JTextField(generatorProps.getProperty("thread.num")));
+        advanced.add(new JTextField(generatorProps.getProperty("delimiter")));
+        advanced.add(new JTextField(generatorProps.getProperty("data.per.second")));
+        advanced.add(new JTextField(generatorProps.getProperty("partition.num")));
+        advanced.add(new JTextField(generatorProps.getProperty("replication.num")));
+        advanced.forEach(i -> setFixedSize(i, new Dimension(90, 30)));
 
         List<JLabel> labels = new ArrayList<>();
         labels.add(new JLabel("线程数量："));
@@ -169,9 +194,51 @@ public class SenderPanel extends JPanel {
         add(advancedPane, BorderLayout.EAST);
     }
 
+    private void setAbleToStart(boolean state) {
+        start.setEnabled(state);
+        stop.setEnabled(!state);
+    }
+
     private void setFixedSize(JComponent component, Dimension dimension) {
         component.setMinimumSize(dimension);
         component.setPreferredSize(dimension);
         component.setMaximumSize(dimension);
+    }
+
+    private void send() {
+        Topic topicTool = new Topic();
+        if (!topicTool.checkExist()) {
+            if (!topicTool.createTopic()) {
+                JOptionPane.showMessageDialog(null, "无法创建Topic，请稍后重试。", "Topic创建失败", JOptionPane.ERROR_MESSAGE);
+                setAbleToStart(true);
+                return;
+            }
+            System.out.println("Topic created.");
+        }
+        System.out.println("Topic exists.");
+        topicTool.close();
+        Generator generator = new Generator();
+        generator.parseConf();
+        new Thread(() -> generator.sendData(stopFlag)).start();
+    }
+
+    private void genProps() {
+        String generatorFile = "generator.properties";
+        String producerFile = "producer.properties";
+        Properties generatorProps = ConfLoader.loadProps(generatorFile);
+        Properties producerProps = ConfLoader.loadProps(producerFile);
+
+        generatorProps.setProperty("topic", basic.get(1).getText());
+        generatorProps.setProperty("template", Template.getEnum(String.valueOf(template.getSelectedItem())).toString());
+        generatorProps.setProperty("thread.num", advanced.get(0).getText());
+        generatorProps.setProperty("delimiter", advanced.get(1).getText());
+        generatorProps.setProperty("data.per.second", advanced.get(2).getText());
+        generatorProps.setProperty("partition.num", advanced.get(3).getText());
+        generatorProps.setProperty("replication.num", advanced.get(4).getText());
+
+        producerProps.setProperty("bootstrap.servers", basic.get(0).getText());
+
+        ConfLoader.writeProps(generatorFile, generatorProps);
+        ConfLoader.writeProps(producerFile, producerProps);
     }
 }

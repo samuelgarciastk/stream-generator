@@ -1,10 +1,11 @@
 package io.transwarp.streamcli.column;
 
 import io.transwarp.streamcli.common.ConfLoader;
-import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.DataGen;
+import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -15,7 +16,11 @@ import java.util.List;
  * Configuration files: phone_prefix
  */
 public class PhoneNumber implements DataGen {
-    private static final List<String> prefix = ConfLoader.loadConf("phone_prefix");
+    private List<String> prefix;
+
+    public PhoneNumber(Properties props) {
+        prefix = ConfLoader.loadConf("phone_prefix");
+    }
 
     @Override
     public String nextRecord() {

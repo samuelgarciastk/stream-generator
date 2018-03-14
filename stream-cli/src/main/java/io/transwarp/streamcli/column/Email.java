@@ -1,10 +1,11 @@
 package io.transwarp.streamcli.column;
 
 import io.transwarp.streamcli.common.ConfLoader;
-import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.DataGen;
+import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Author: stk
@@ -15,7 +16,11 @@ import java.util.List;
  * Configuration files: email_suffix
  */
 public class Email implements DataGen {
-    private static final List<String> suffix = ConfLoader.loadConf("email_suffix");
+    private List<String> suffix;
+
+    public Email(Properties props) {
+        suffix = ConfLoader.loadConf("email_suffix");
+    }
 
     @Override
     public String nextRecord() {

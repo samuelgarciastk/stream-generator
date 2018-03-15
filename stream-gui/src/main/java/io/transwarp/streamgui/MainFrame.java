@@ -3,6 +3,7 @@ package io.transwarp.streamgui;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
+import java.io.PrintStream;
 import java.util.Enumeration;
 
 /**
@@ -78,11 +79,16 @@ public class MainFrame extends JFrame {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         splitPane.setOneTouchExpandable(true);
         splitPane.setLeftComponent(panel);
-        JTextPane textPane = new JTextPane();
-        JConsole console = new JConsole(textPane);
-        console.redirectOut(Color.BLACK, System.out);
-        console.redirectErr(Color.RED, System.err);
-        console.setLimitLines(100);
+//        JTextPane textPane = new JTextPane();
+//        JConsole console = new JConsole(textPane);
+//        console.redirectOut(Color.BLACK, System.out);
+//        console.redirectErr(Color.RED, System.err);
+//        console.setLimitLines(500);
+        JTextArea textPane = new JTextArea();
+        textPane.setEditable(false);
+        PrintStream con = new PrintStream(new TextAreaOutputStream(textPane));
+        System.setOut(con);
+        System.setErr(con);
         splitPane.setRightComponent(new JScrollPane(textPane));
         setContentPane(splitPane);
     }

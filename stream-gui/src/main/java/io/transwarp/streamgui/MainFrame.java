@@ -79,11 +79,11 @@ public class MainFrame extends JFrame {
         splitPane.setOneTouchExpandable(true);
         splitPane.setLeftComponent(panel);
         JTextPane textPane = new JTextPane();
-        splitPane.setRightComponent(new JScrollPane(textPane));
-        Console console = new Console(textPane);
+        JConsole console = new JConsole(textPane);
         console.redirectOut(Color.BLACK, System.out);
         console.redirectErr(Color.RED, System.err);
-        console.setMessageLines(100);
+        console.setLimitLines(100);
+        splitPane.setRightComponent(new JScrollPane(textPane));
         setContentPane(splitPane);
     }
 }

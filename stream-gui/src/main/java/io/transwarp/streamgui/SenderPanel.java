@@ -3,6 +3,9 @@ package io.transwarp.streamgui;
 import io.transwarp.streamcli.Generator;
 import io.transwarp.streamcli.Topic;
 import io.transwarp.streamcli.common.ConfLoader;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.ListTopicsOptions;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -35,7 +39,6 @@ public class SenderPanel extends JPanel {
         generatorProps = ConfLoader.loadProps("generator.properties");
         producerProps = ConfLoader.loadProps("producer.properties");
         stopFlag = new AtomicBoolean(false);
-
         setLayout(new BorderLayout());
         basicPane = new JPanel(new BorderLayout());
         initTemplatePane();
@@ -52,6 +55,7 @@ public class SenderPanel extends JPanel {
         desc.setEditable(false);
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
+        desc.setBackground(null);
         desc.setText(currentTemplate.getDesc());
 
         template = new JComboBox<>();
@@ -63,6 +67,35 @@ public class SenderPanel extends JPanel {
                 desc.setText(Template.getEnum(String.valueOf(e.getItem())).getDesc());
             }
         });
+
+        JButton testConn = new JButton("测试连接");
+        testConn.setFocusPainted(false);
+        setFixedSize(testConn, new Dimension(90, 30));
+        testConn.addActionListener(e -> new SwingWorker<Boolean, Void>() {
+            @Override
+            protected Boolean doInBackground() {
+                Properties props = new Properties();
+                props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, basic.get(0).getText());
+                try (AdminClient adminClient = AdminClient.create(props)) {
+                    adminClient.listTopics(new ListTopicsOptions().timeoutMs(5000)).listings().get();
+                    return true;
+                } catch (InterruptedException | ExecutionException e1) {
+                    return false;
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    if (get())
+                        JOptionPane.showMessageDialog(null, "连接成功", "测试连接", JOptionPane.INFORMATION_MESSAGE);
+                    else
+                        JOptionPane.showMessageDialog(null, "无法连接", "测试连接", JOptionPane.ERROR_MESSAGE);
+                } catch (InterruptedException | ExecutionException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }.execute());
 
         basic = new ArrayList<>();
         basic.add(new JTextField(producerProps.getProperty("bootstrap.servers")));
@@ -80,6 +113,8 @@ public class SenderPanel extends JPanel {
         box_servers.add(labels.get(0));
         box_servers.add(Box.createHorizontalStrut(10));
         box_servers.add(basic.get(0));
+        box_servers.add(Box.createHorizontalStrut(10));
+        box_servers.add(testConn);
         box_servers.add(Box.createHorizontalGlue());
 
         Box box_topic = Box.createHorizontalBox();
@@ -122,20 +157,21 @@ public class SenderPanel extends JPanel {
         start.setEnabled(true);
         stop.setEnabled(false);
 
-        start.addActionListener(e -> {
-            System.out.println("Start");
-            setAbleToStart(false);
-            stopFlag.set(false);
-            genProps();
-            send();
-        });
-
-        stop.addActionListener(e -> {
+        start.addActionListener(e -> new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                setAbleToStart(false);
+                stopFlag.set(false);
+                genProps();
+                send();
+                return null;
+            }
+        }.execute());
+        stop.addActionListener(e -> SwingUtilities.invokeLater(() -> {
             stopFlag.set(true);
             setAbleToStart(true);
-        });
-
-        advanced.addActionListener(e -> {
+        }));
+        advanced.addActionListener(e -> SwingUtilities.invokeLater(() -> {
             if (advanced.getText().equals("<<")) {
                 advanced.setText(">>");
                 advancedPane.setVisible(true);
@@ -144,7 +180,7 @@ public class SenderPanel extends JPanel {
                 advancedPane.setVisible(false);
             }
             updateUI();
-        });
+        }));
 
         Box controlPane = Box.createHorizontalBox();
         controlPane.setBorder(new EmptyBorder(10, 20, 10, 20));
@@ -219,7 +255,7 @@ public class SenderPanel extends JPanel {
         topicTool.close();
         Generator generator = new Generator();
         generator.parseConf();
-        new Thread(() -> generator.sendData(stopFlag)).start();
+        generator.sendData(stopFlag);
     }
 
     private void genProps() {

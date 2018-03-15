@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -154,8 +155,15 @@ public class Generator {
             isPaused.set(false);
         }
 
+        long now = System.currentTimeMillis();
+        try {
+            exec.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         producer.close();
-        System.out.println("Total messages sent: " + sum.get());
-        System.out.println("Total duration: " + (System.currentTimeMillis() - beginTime) / 1000.0);
+        System.out.println("总发送量: " + sum.get());
+        System.out.println("总耗时: " + (now - beginTime) / 1000.0);
+        System.out.println("发送完成");
     }
 }

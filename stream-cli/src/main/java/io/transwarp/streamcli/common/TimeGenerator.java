@@ -27,7 +27,7 @@ public class TimeGenerator {
             if (begin > end) return null;
             return sf.format(new Date(begin + (long) (Math.random() * (end - begin))));
         } catch (ParseException e) {
-            System.out.println("Date format error: " + format);
+            System.err.println("Date format error: " + format);
             e.printStackTrace();
         }
         return null;
@@ -59,7 +59,7 @@ public class TimeGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Date cannot be transformed from \"" + inFormat + "\" to \"" + outFormat + "\": " + date);
+        System.err.println("Date cannot be transformed from \"" + inFormat + "\" to \"" + outFormat + "\": " + date);
         throw new NullPointerException();
     }
 

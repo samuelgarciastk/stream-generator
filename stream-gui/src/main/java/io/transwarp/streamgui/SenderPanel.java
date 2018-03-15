@@ -247,6 +247,7 @@ public class SenderPanel extends JPanel {
             if (!topicTool.createTopic()) {
                 JOptionPane.showMessageDialog(null, "无法创建Topic，请稍后重试。", "Topic创建失败", JOptionPane.ERROR_MESSAGE);
                 setAbleToStart(true);
+                topicTool.close();
                 return;
             }
             System.out.println("Topic created.");

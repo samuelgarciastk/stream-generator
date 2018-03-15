@@ -31,7 +31,7 @@ public class ConfLoader {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        System.out.println("File not found: " + name);
+        System.err.println("File not found: " + name);
         throw new NullPointerException();
     }
 
@@ -46,7 +46,7 @@ public class ConfLoader {
         try (InputStreamReader in = getConf(name)) {
             props.load(in);
         } catch (IOException e) {
-            System.out.println("Properties load error: " + name);
+            System.err.println("Properties load error: " + name);
             e.printStackTrace();
         }
         return props;
@@ -137,7 +137,7 @@ public class ConfLoader {
         try (OutputStream out = new FileOutputStream(name)) {
             props.store(out, null);
         } catch (IOException e) {
-            System.out.println("Cannot create property: " + name);
+            System.err.println("Cannot create property: " + name);
             e.printStackTrace();
         }
     }

@@ -72,7 +72,7 @@ public class Generator {
                         try {
                             data.add((DataGen) Class.forName("io.transwarp.streamcli.schema." + name).getConstructor(Properties.class).newInstance(props));
                         } catch (Exception e1) {
-                            System.out.println("Class not found: " + name);
+                            System.err.println("Class not found: " + name);
                             e1.printStackTrace();
                         }
                     } catch (Exception e) {

@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Author: stk
@@ -31,13 +33,12 @@ public class Topic {
 
     public boolean checkExist() {
         try {
-            Set<String> topics = admin.listTopics().names().get();
+            Set<String> topics = admin.listTopics().names().get(10, TimeUnit.SECONDS);
             return topics.contains(generatorProps.getProperty("topic"));
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.err.println("List topics error.");
+            return false;
         }
-        System.out.println("List topics error.");
-        throw new NullPointerException();
     }
 
     public boolean createTopic() {
@@ -46,15 +47,15 @@ public class Topic {
         short replication = Short.parseShort(generatorProps.getProperty("replication.num"));
         CreateTopicsResult result = admin.createTopics(Collections.singletonList(new NewTopic(topic, partition, replication)));
         try {
-            result.all().get();
-        } catch (InterruptedException | ExecutionException e) {
-            System.out.println("Topic " + topic + " already exists.");
+            result.all().get(10, TimeUnit.SECONDS);
+            return true;
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            System.err.println("Topic " + topic + " already exists.");
             return false;
         }
-        return true;
     }
 
     public void close() {
-        admin.close();
+        admin.close(1, TimeUnit.SECONDS);
     }
 }

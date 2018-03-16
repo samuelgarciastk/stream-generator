@@ -1,4 +1,4 @@
-package io.transwarp.streamgui;
+package io.transwarp.streamgui.panel;
 
 import javax.swing.text.*;
 import java.awt.*;

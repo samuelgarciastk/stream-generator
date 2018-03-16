@@ -1,8 +1,9 @@
-package io.transwarp.streamgui;
+package io.transwarp.streamgui.panel;
 
 import io.transwarp.streamcli.Generator;
 import io.transwarp.streamcli.Topic;
 import io.transwarp.streamcli.common.ConfLoader;
+import io.transwarp.streamgui.config.Template;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.ListTopicsOptions;

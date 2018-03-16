@@ -1,4 +1,4 @@
-package io.transwarp.streamgui;
+package io.transwarp.streamgui.config;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public enum Template {
         this.config = config;
     }
 
-    static Template getEnum(String name) {
+    public static Template getEnum(String name) {
         return map.get(name);
     }
 

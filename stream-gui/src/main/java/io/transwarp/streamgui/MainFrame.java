@@ -1,5 +1,10 @@
 package io.transwarp.streamgui;
 
+import io.transwarp.streamgui.panel.ConsoleOutputStream;
+import io.transwarp.streamgui.panel.ControlPanel;
+import io.transwarp.streamgui.panel.CustomPanel;
+import io.transwarp.streamgui.panel.SenderPanel;
+
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
@@ -28,7 +33,7 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initMenu();
-        initPanel();
+        panel = new ControlPanel();
         initSplitPane();
 
         pack();
@@ -57,19 +62,29 @@ public class MainFrame extends JFrame {
         JMenu menu2 = new JMenu("编辑");
 
         JMenuItem item1_1 = new JMenuItem("退出");
-        JMenuItem item2_1 = new JMenuItem("自定义模板");
+        JMenuItem item2_1 = new JMenuItem("预置模板");
+        JMenuItem item2_2 = new JMenuItem("自定义模板");
 
         menu1.add(item1_1);
         menu2.add(item2_1);
+        menu2.add(item2_2);
         menuBar.add(menu1);
         menuBar.add(menu2);
         setJMenuBar(menuBar);
 
         item1_1.addActionListener(e -> System.exit(0));
-    }
-
-    private void initPanel() {
-        panel = new SenderPanel();
+        item2_1.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            if (panel != null) remove(panel);
+            panel = new SenderPanel();
+            splitPane.setLeftComponent(panel);
+            revalidate();
+        }));
+        item2_2.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            if (panel != null) remove(panel);
+            panel = new CustomPanel();
+            splitPane.setLeftComponent(panel);
+            revalidate();
+        }));
     }
 
     /**

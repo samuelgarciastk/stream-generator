@@ -28,10 +28,14 @@ public class SenderPanel extends JPanel {
     private Properties producerProps;
     private AtomicBoolean stopFlag;
     private JPanel basicPane;
-    private Box advancedPane;
+    private Box sidePane;
+    private Box customPane;
+    private JScrollPane scrollPane;
     private JComboBox<String> template;
-    private List<JTextField> basic;
-    private List<JTextField> advanced;
+    private List<JTextField> basicField;
+    private List<JTextField> advancedField;
+    private List<String> customConfigs;
+    private List<JTextField> customField;
     private JButton start;
     private JButton stop;
 
@@ -40,11 +44,21 @@ public class SenderPanel extends JPanel {
         producerProps = ConfLoader.loadProps("producer.properties");
         stopFlag = new AtomicBoolean(false);
         setLayout(new BorderLayout());
+
         basicPane = new JPanel(new BorderLayout());
         initTemplatePane();
         initControlPane();
         add(basicPane, BorderLayout.CENTER);
+
+        sidePane = Box.createVerticalBox();
+        scrollPane = new JScrollPane(sidePane);
+        scrollPane.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("高级"), new EmptyBorder(10, 10, 10, 0)));
+        scrollPane.setVisible(false);
+        setFixedSize(scrollPane, new Dimension(350, 0));
         initAdvancedPane();
+        addCustomPane();
+        add(scrollPane, BorderLayout.EAST);
+
         setVisible(true);
     }
 
@@ -65,6 +79,7 @@ public class SenderPanel extends JPanel {
         template.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 desc.setText(Template.getEnum(String.valueOf(e.getItem())).getDesc());
+                SwingUtilities.invokeLater(this::addCustomPane);
             }
         });
 
@@ -75,7 +90,7 @@ public class SenderPanel extends JPanel {
             @Override
             protected Boolean doInBackground() {
                 Properties props = new Properties();
-                props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, basic.get(0).getText());
+                props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, basicField.get(0).getText());
                 try (AdminClient adminClient = AdminClient.create(props)) {
                     adminClient.listTopics(new ListTopicsOptions().timeoutMs(5000)).listings().get();
                     return true;
@@ -97,10 +112,10 @@ public class SenderPanel extends JPanel {
             }
         }.execute());
 
-        basic = new ArrayList<>();
-        basic.add(new JTextField(producerProps.getProperty("bootstrap.servers")));
-        basic.add(new JTextField(generatorProps.getProperty("topic")));
-        basic.forEach(i -> setFixedSize(i, new Dimension(200, 30)));
+        basicField = new ArrayList<>();
+        basicField.add(new JTextField(producerProps.getProperty("bootstrap.servers")));
+        basicField.add(new JTextField(generatorProps.getProperty("topic")));
+        basicField.forEach(i -> setFixedSize(i, new Dimension(200, 30)));
 
         List<JLabel> labels = new ArrayList<>();
         labels.add(new JLabel("Servers："));
@@ -112,7 +127,7 @@ public class SenderPanel extends JPanel {
         Box box_servers = Box.createHorizontalBox();
         box_servers.add(labels.get(0));
         box_servers.add(Box.createHorizontalStrut(10));
-        box_servers.add(basic.get(0));
+        box_servers.add(basicField.get(0));
         box_servers.add(Box.createHorizontalStrut(10));
         box_servers.add(testConn);
         box_servers.add(Box.createHorizontalGlue());
@@ -120,7 +135,7 @@ public class SenderPanel extends JPanel {
         Box box_topic = Box.createHorizontalBox();
         box_topic.add(labels.get(1));
         box_topic.add(Box.createHorizontalStrut(10));
-        box_topic.add(basic.get(1));
+        box_topic.add(basicField.get(1));
         box_topic.add(Box.createHorizontalGlue());
 
         Box box_template = Box.createHorizontalBox();
@@ -174,10 +189,10 @@ public class SenderPanel extends JPanel {
         advanced.addActionListener(e -> SwingUtilities.invokeLater(() -> {
             if (advanced.getText().equals("<<")) {
                 advanced.setText(">>");
-                advancedPane.setVisible(true);
+                scrollPane.setVisible(true);
             } else {
                 advanced.setText("<<");
-                advancedPane.setVisible(false);
+                scrollPane.setVisible(false);
             }
             updateUI();
         }));
@@ -195,13 +210,13 @@ public class SenderPanel extends JPanel {
     }
 
     private void initAdvancedPane() {
-        advanced = new ArrayList<>();
-        advanced.add(new JTextField(generatorProps.getProperty("thread.num")));
-        advanced.add(new JTextField(generatorProps.getProperty("delimiter")));
-        advanced.add(new JTextField(generatorProps.getProperty("data.per.second")));
-        advanced.add(new JTextField(generatorProps.getProperty("partition.num")));
-        advanced.add(new JTextField(generatorProps.getProperty("replication.num")));
-        advanced.forEach(i -> setFixedSize(i, new Dimension(90, 30)));
+        advancedField = new ArrayList<>();
+        advancedField.add(new JTextField(generatorProps.getProperty("thread.num")));
+        advancedField.add(new JTextField(generatorProps.getProperty("delimiter")));
+        advancedField.add(new JTextField(generatorProps.getProperty("data.per.second")));
+        advancedField.add(new JTextField(generatorProps.getProperty("partition.num")));
+        advancedField.add(new JTextField(generatorProps.getProperty("replication.num")));
+        advancedField.forEach(i -> setFixedSize(i, new Dimension(100, 30)));
 
         List<JLabel> labels = new ArrayList<>();
         labels.add(new JLabel("线程数量："));
@@ -209,25 +224,55 @@ public class SenderPanel extends JPanel {
         labels.add(new JLabel("发送速率(条/秒)："));
         labels.add(new JLabel("Topic分区数量："));
         labels.add(new JLabel("Topic副本数量："));
-        labels.forEach(i -> setFixedSize(i, new Dimension(120, 30)));
+        labels.forEach(i -> setFixedSize(i, new Dimension(180, 30)));
 
         List<Box> lines = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Box line = Box.createHorizontalBox();
             line.add(labels.get(i));
-            line.add(Box.createHorizontalStrut(10));
-            line.add(advanced.get(i));
+            line.add(advancedField.get(i));
             lines.add(line);
         }
 
-        advancedPane = Box.createVerticalBox();
-        advancedPane.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("Advanced"), new EmptyBorder(10, 10, 10, 10)));
+        Box advancedPane = Box.createVerticalBox();
         lines.forEach(i -> {
             advancedPane.add(i);
             advancedPane.add(Box.createVerticalStrut(20));
         });
-        advancedPane.setVisible(false);
-        add(advancedPane, BorderLayout.EAST);
+        sidePane.add(advancedPane);
+    }
+
+    private void addCustomPane() {
+        if (customPane != null) sidePane.remove(customPane);
+        customConfigs = Template.getEnum(String.valueOf(template.getSelectedItem())).getConfig();
+        if (customConfigs == null) {
+            updateUI();
+            return;
+        }
+        customField = new ArrayList<>();
+        List<JLabel> labels = new ArrayList<>();
+        customConfigs.forEach(i -> {
+            labels.add(new JLabel(i + "："));
+            customField.add(new JTextField(generatorProps.getProperty(i)));
+        });
+        labels.forEach(i -> setFixedSize(i, new Dimension(180, 30)));
+        customField.forEach(i -> setFixedSize(i, new Dimension(100, 30)));
+
+        List<Box> lines = new ArrayList<>();
+        for (int i = 0; i < customConfigs.size(); i++) {
+            Box line = Box.createHorizontalBox();
+            line.add(labels.get(i));
+            line.add(customField.get(i));
+            lines.add(line);
+        }
+
+        customPane = Box.createVerticalBox();
+        lines.forEach(i -> {
+            customPane.add(i);
+            customPane.add(Box.createVerticalStrut(20));
+        });
+        sidePane.add(customPane);
+        updateUI();
     }
 
     private void setAbleToStart(boolean state) {
@@ -260,22 +305,24 @@ public class SenderPanel extends JPanel {
     }
 
     private void genProps() {
-        String generatorFile = "generator.properties";
         String producerFile = "producer.properties";
-        Properties generatorProps = ConfLoader.loadProps(generatorFile);
         Properties producerProps = ConfLoader.loadProps(producerFile);
+        producerProps.setProperty("bootstrap.servers", basicField.get(0).getText());
 
-        generatorProps.setProperty("topic", basic.get(1).getText());
+        String generatorFile = "generator.properties";
+        Properties generatorProps = ConfLoader.loadProps(generatorFile);
+        generatorProps.setProperty("topic", basicField.get(1).getText());
         generatorProps.setProperty("template", Template.getEnum(String.valueOf(template.getSelectedItem())).toString());
-        generatorProps.setProperty("thread.num", advanced.get(0).getText());
-        generatorProps.setProperty("delimiter", advanced.get(1).getText());
-        generatorProps.setProperty("data.per.second", advanced.get(2).getText());
-        generatorProps.setProperty("partition.num", advanced.get(3).getText());
-        generatorProps.setProperty("replication.num", advanced.get(4).getText());
+        generatorProps.setProperty("thread.num", advancedField.get(0).getText());
+        generatorProps.setProperty("delimiter", advancedField.get(1).getText());
+        generatorProps.setProperty("data.per.second", advancedField.get(2).getText());
+        generatorProps.setProperty("partition.num", advancedField.get(3).getText());
+        generatorProps.setProperty("replication.num", advancedField.get(4).getText());
 
-        producerProps.setProperty("bootstrap.servers", basic.get(0).getText());
+        for (int i = 0; i < customConfigs.size(); i++)
+            generatorProps.setProperty(customConfigs.get(i), customField.get(i).getText());
 
-        ConfLoader.writeProps(generatorFile, generatorProps);
         ConfLoader.writeProps(producerFile, producerProps);
+        ConfLoader.writeProps(generatorFile, generatorProps);
     }
 }

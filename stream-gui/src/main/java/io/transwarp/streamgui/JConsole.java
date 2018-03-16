@@ -67,7 +67,7 @@ public class JConsole {
             this.printStream = printStream;
         }
 
-        private void append(String line) {
+        private synchronized void append(String line) {
             if (printStream != null) printStream.print(line);
             SwingUtilities.invokeLater(() -> {
                 try {
@@ -79,17 +79,17 @@ public class JConsole {
         }
 
         @Override
-        public void write(int b) {
+        public synchronized void write(int b) {
             append(String.valueOf((char) b));
         }
 
         @Override
-        public void write(byte[] b) {
+        public synchronized void write(byte[] b) {
             append(new String(b));
         }
 
         @Override
-        public void write(byte[] b, int off, int len) {
+        public synchronized void write(byte[] b, int off, int len) {
             append(new String(b, off, len));
         }
     }

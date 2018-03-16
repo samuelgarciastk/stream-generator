@@ -17,14 +17,14 @@ public class MainFrame extends JFrame {
     private JPanel panel;
 
     public MainFrame() {
-        double scale_x = 0.7;
+        double scale_x = 0.6;
         double scale_y = 0.8;
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screen.width * scale_x);
         int height = (int) (screen.height * scale_y);
         setPreferredSize(new Dimension(width, height));
         setLocation((int) (screen.width * (1 - scale_x) / 2), (int) (screen.height * (1 - scale_y) / 2));
-        setTitle("Stream Generator v0.1.0");
+        setTitle("Stream Generator v1.0.0");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initMenu();
@@ -79,16 +79,13 @@ public class MainFrame extends JFrame {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         splitPane.setOneTouchExpandable(true);
         splitPane.setLeftComponent(panel);
-//        JTextPane textPane = new JTextPane();
+        JTextPane textPane = new JTextPane();
+        System.setOut(new PrintStream(new ConsoleOutputStream(textPane, Color.BLACK, System.out)));
+        System.setErr(new PrintStream(new ConsoleOutputStream(textPane, Color.RED, System.err)));
 //        JConsole console = new JConsole(textPane);
 //        console.redirectOut(Color.BLACK, System.out);
 //        console.redirectErr(Color.RED, System.err);
 //        console.setLimitLines(500);
-        JTextArea textPane = new JTextArea();
-        textPane.setEditable(false);
-        PrintStream con = new PrintStream(new TextAreaOutputStream(textPane));
-        System.setOut(con);
-        System.setErr(con);
         splitPane.setRightComponent(new JScrollPane(textPane));
         setContentPane(splitPane);
     }

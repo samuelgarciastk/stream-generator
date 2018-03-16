@@ -53,8 +53,9 @@ public class SenderPanel extends JPanel {
         sidePane = Box.createVerticalBox();
         scrollPane = new JScrollPane(sidePane);
         scrollPane.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("高级"), new EmptyBorder(10, 10, 10, 0)));
-        scrollPane.setVisible(false);
         setFixedSize(scrollPane, new Dimension(350, 0));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(30);
+        scrollPane.setVisible(false);
         initAdvancedPane();
         addCustomPane();
         add(scrollPane, BorderLayout.EAST);

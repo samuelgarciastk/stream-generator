@@ -1,82 +1,119 @@
 package io.transwarp.streamgui.panel;
 
-import io.transwarp.streamcli.common.ConfLoader;
+import io.transwarp.streamgui.common.ModifiedFlowLayout;
+import io.transwarp.streamgui.common.UITools;
+import io.transwarp.streamgui.config.Column;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Author: stk
  * Date: 2018/3/16
  */
-public class CustomPanel extends JPanel {
-    private Properties generatorProps;
-    private Properties producerProps;
-    private AtomicBoolean stopFlag;
-    private List<String> columns;
-    private JPanel basicPane;
-    private List<JTextField> basicField;
-    private JButton append;
-    private JButton start;
-    private JButton stop;
+public class CustomPanel extends PropsBox {
+    private JTextArea desc;
+    private List<JComboBox<String>> columns;
 
-    public CustomPanel() {
-        generatorProps = ConfLoader.loadProps("generator.properties");
-        producerProps = ConfLoader.loadProps("producer.properties");
-        stopFlag = new AtomicBoolean(false);
-        setLayout(new BorderLayout());
-        basicPane = new JPanel(new BorderLayout());
-        initCustomPane();
-        initControlPane();
-        add(basicPane, BorderLayout.CENTER);
-        setVisible(true);
-    }
+    public CustomPanel(JScrollPane scrollPane) {
+        super(BoxLayout.Y_AXIS);
+        try {
+            ((Box) scrollPane.getViewport().getView()).remove(1);
+        } catch (Exception ignored) {
+        }
+        JPanel panel = new JPanel(new BorderLayout());
 
-    private void initCustomPane() {
+        Box preview = Box.createVerticalBox();
+        Box label_line = Box.createHorizontalBox();
+        JLabel label = new JLabel("模板预览：");
+        UITools.setFixedSize(label, new Dimension(100, 30));
+        label_line.add(label);
+        label_line.add(Box.createHorizontalGlue());
+        desc = new JTextArea();
+        desc.setEditable(false);
+        desc.setLineWrap(true);
+        desc.setWrapStyleWord(true);
+        desc.setBackground(null);
+        desc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        UITools.setFixedSize(desc, new Dimension(0, 100));
+        preview.add(label_line);
+        preview.add(Box.createVerticalStrut(10));
+        preview.add(new JScrollPane(desc));
+        panel.add(preview, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new ModifiedFlowLayout(FlowLayout.LEFT));
         columns = new ArrayList<>();
-        append = new JButton("添加");
-        append.setFocusPainted(false);
-    }
+        columns.add(getColumn());
+        buttonPanel.add(columns.get(0));
+        buttonPanel.add(Box.createHorizontalStrut(10));
+        desc.setText(String.valueOf(columns.get(0).getSelectedItem()));
 
-    private void initControlPane() {
-        start = new JButton("开始");
-        stop = new JButton("停止");
-        JButton advanced = new JButton("<<");
-        start.setFocusPainted(false);
-        stop.setFocusPainted(false);
-        advanced.setFocusPainted(false);
-        start.setEnabled(true);
-        stop.setEnabled(false);
+        JButton add = new JButton("+");
+        add.setFocusPainted(false);
+        UITools.setFixedSize(add, new Dimension(45, 30));
+        buttonPanel.add(add);
+        JButton remove = new JButton("-");
+        remove.setFocusPainted(false);
+        UITools.setFixedSize(remove, new Dimension(45, 30));
+        buttonPanel.add(remove);
 
-        start.addActionListener(e -> new SwingWorker<Void, Void>() {
-            @Override
-            protected Void doInBackground() {
-                setAbleToStart(false);
-                stopFlag.set(false);
-                return null;
-            }
-        }.execute());
-        stop.addActionListener(e -> SwingUtilities.invokeLater(() -> {
-            stopFlag.set(true);
-            setAbleToStart(true);
+        JScrollPane scroll = new JScrollPane(buttonPanel);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        panel.add(scroll, BorderLayout.CENTER);
+        setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        add(panel);
+
+        add.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            buttonPanel.remove(remove);
+            buttonPanel.remove(add);
+            columns.add(getColumn());
+            buttonPanel.add(columns.get(columns.size() - 1));
+            buttonPanel.add(Box.createHorizontalStrut(10));
+            buttonPanel.add(add);
+            buttonPanel.add(remove);
+            setTemplate();
+            scroll.validate();
+            scroll.repaint();
         }));
 
-        Box controlPane = Box.createHorizontalBox();
-        controlPane.setBorder(new EmptyBorder(10, 20, 10, 20));
-        controlPane.add(Box.createHorizontalStrut(20));
-        controlPane.add(start);
-        controlPane.add(Box.createHorizontalStrut(20));
-        controlPane.add(stop);
-        add(controlPane, BorderLayout.SOUTH);
+        remove.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            buttonPanel.remove(remove);
+            buttonPanel.remove(add);
+            buttonPanel.remove(columns.get(columns.size() - 1));
+            columns.remove(columns.size() - 1);
+            buttonPanel.remove(buttonPanel.getComponentCount() - 1);
+            buttonPanel.add(add);
+            buttonPanel.add(remove);
+            setTemplate();
+            scroll.validate();
+            scroll.repaint();
+        }));
     }
 
-    private void setAbleToStart(boolean state) {
-        start.setEnabled(state);
-        stop.setEnabled(!state);
+    private JComboBox<String> getColumn() {
+        JComboBox<String> column = new JComboBox<>();
+        Arrays.stream(Column.values()).forEach(i -> column.addItem(i.getName()));
+        UITools.setFixedSize(column, new Dimension(100, 30));
+        column.addItemListener(e -> setTemplate());
+        return column;
+    }
+
+    private void setTemplate() {
+        SwingUtilities.invokeLater(() -> {
+            StringJoiner template = new StringJoiner(" | ");
+            columns.forEach(i -> template.add(String.valueOf(i.getSelectedItem())));
+            desc.setText(template.toString());
+        });
+    }
+
+    @Override
+    public Properties genProps() {
+        StringJoiner template = new StringJoiner("``");
+        columns.forEach(i -> template.add(Column.getEnum(String.valueOf(i.getSelectedItem())).toString()));
+        Properties props = new Properties();
+        props.setProperty("template", template.toString());
+        return props;
     }
 }

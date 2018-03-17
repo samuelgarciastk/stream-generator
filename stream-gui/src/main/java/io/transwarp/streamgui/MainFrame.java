@@ -1,7 +1,7 @@
 package io.transwarp.streamgui;
 
+import io.transwarp.streamgui.panel.BasicPanel;
 import io.transwarp.streamgui.panel.ConsoleOutputStream;
-import io.transwarp.streamgui.panel.ControlPanel;
 import io.transwarp.streamgui.panel.CustomPanel;
 import io.transwarp.streamgui.panel.SenderPanel;
 
@@ -19,7 +19,7 @@ import java.util.Enumeration;
  */
 public class MainFrame extends JFrame {
     private JSplitPane splitPane;
-    private JPanel panel;
+    private SenderPanel panel;
 
     public MainFrame() {
         double scale_x = 0.6;
@@ -29,11 +29,12 @@ public class MainFrame extends JFrame {
         int height = (int) (screen.height * scale_y);
         setPreferredSize(new Dimension(width, height));
         setLocation((int) (screen.width * (1 - scale_x) / 2), (int) (screen.height * (1 - scale_y) / 2));
+        setMinimumSize(new Dimension(800, 600));
         setTitle("Stream Generator v1.0.0");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initMenu();
-        panel = new ControlPanel();
+        panel = new SenderPanel();
         initSplitPane();
 
         pack();
@@ -73,18 +74,8 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         item1_1.addActionListener(e -> System.exit(0));
-        item2_1.addActionListener(e -> SwingUtilities.invokeLater(() -> {
-            if (panel != null) remove(panel);
-            panel = new SenderPanel();
-            splitPane.setLeftComponent(panel);
-            revalidate();
-        }));
-        item2_2.addActionListener(e -> SwingUtilities.invokeLater(() -> {
-            if (panel != null) remove(panel);
-            panel = new CustomPanel();
-            splitPane.setLeftComponent(panel);
-            revalidate();
-        }));
+        item2_1.addActionListener(e -> panel.changeMainPane(BasicPanel.class.getName()));
+        item2_2.addActionListener(e -> panel.changeMainPane(CustomPanel.class.getName()));
     }
 
     /**

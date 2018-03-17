@@ -13,10 +13,11 @@ import java.util.Properties;
  * Author: stk
  * Date: 2018/3/16
  */
-public class CoreConfigPanel extends PropsPanel {
+public class CoreConfigPanel extends PropsBox {
     private List<JTextField> advancedField;
 
-    public CoreConfigPanel() {
+    CoreConfigPanel() {
+        super(BoxLayout.Y_AXIS);
         Properties generatorProps = ConfLoader.loadProps("generator.properties");
         advancedField = new ArrayList<>();
         advancedField.add(new JTextField(generatorProps.getProperty("thread.num")));
@@ -42,13 +43,10 @@ public class CoreConfigPanel extends PropsPanel {
             lines.add(line);
         }
 
-        Box advancedPane = Box.createVerticalBox();
         lines.forEach(i -> {
-            advancedPane.add(i);
-            advancedPane.add(Box.createVerticalStrut(20));
+            add(i);
+            add(Box.createVerticalStrut(20));
         });
-        setLayout(new BorderLayout());
-        add(advancedPane, BorderLayout.CENTER);
     }
 
     @Override

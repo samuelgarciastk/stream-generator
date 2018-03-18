@@ -1,7 +1,7 @@
 package io.transwarp.streamgui.panel;
 
-import io.transwarp.streamgui.common.ModifiedFlowLayout;
 import io.transwarp.streamgui.common.UITools;
+import io.transwarp.streamgui.common.WrapLayout;
 import io.transwarp.streamgui.config.Column;
 
 import javax.swing.*;
@@ -31,19 +31,18 @@ public class CustomPanel extends PropsBox {
         UITools.setFixedSize(label, new Dimension(100, 30));
         label_line.add(label);
         label_line.add(Box.createHorizontalGlue());
-        desc = new JTextArea();
+        desc = new JTextArea(5, 0);
         desc.setEditable(false);
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
         desc.setBackground(null);
         desc.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        UITools.setFixedSize(desc, new Dimension(0, 100));
         preview.add(label_line);
         preview.add(Box.createVerticalStrut(10));
         preview.add(new JScrollPane(desc));
         panel.add(preview, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel(new ModifiedFlowLayout(FlowLayout.LEFT));
+        JPanel buttonPanel = new JPanel(new WrapLayout(FlowLayout.LEFT));
         columns = new ArrayList<>();
         columns.add(getColumn());
         buttonPanel.add(columns.get(0));
@@ -63,6 +62,7 @@ public class CustomPanel extends PropsBox {
         scroll.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scroll, BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        setMinimumSize(new Dimension(0, 250));
         add(panel);
 
         add.addActionListener(e -> SwingUtilities.invokeLater(() -> {

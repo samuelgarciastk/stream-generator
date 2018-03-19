@@ -1,5 +1,6 @@
 package io.transwarp.streamgui;
 
+import io.transwarp.streamgui.common.SmartScroller;
 import io.transwarp.streamgui.panel.BasicPanel;
 import io.transwarp.streamgui.panel.ConsoleOutputStream;
 import io.transwarp.streamgui.panel.CustomPanel;
@@ -85,14 +86,16 @@ public class MainFrame extends JFrame {
         splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, true);
         splitPane.setOneTouchExpandable(true);
         splitPane.setLeftComponent(panel);
-        JTextPane textPane = new JTextPane();
-        System.setOut(new PrintStream(new ConsoleOutputStream(textPane, Color.BLACK, System.out)));
-        System.setErr(new PrintStream(new ConsoleOutputStream(textPane, Color.RED, System.err)));
-//        JConsole console = new JConsole(textPane);
-//        console.redirectOut(Color.BLACK, System.out);
-//        console.redirectErr(Color.RED, System.err);
-//        console.setLimitLines(500);
-        splitPane.setRightComponent(new JScrollPane(textPane));
+        JTextPane console = new JTextPane();
+        System.setOut(new PrintStream(new ConsoleOutputStream(console, Color.BLACK, System.out)));
+        System.setErr(new PrintStream(new ConsoleOutputStream(console, Color.RED, System.err)));
+        /*JConsole console = new JConsole(console);
+        console.redirectOut(Color.BLACK, System.out);
+        console.redirectErr(Color.RED, System.err);
+        console.setLimitLines(500);*/
+        JScrollPane scrollPane = new JScrollPane(console);
+        new SmartScroller(scrollPane);
+        splitPane.setRightComponent(scrollPane);
         setContentPane(splitPane);
     }
 }

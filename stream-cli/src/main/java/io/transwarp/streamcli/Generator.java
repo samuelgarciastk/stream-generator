@@ -8,10 +8,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringJoiner;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -106,6 +104,7 @@ public class Generator {
         AtomicInteger sum = new AtomicInteger(0);
         AtomicBoolean isPaused = new AtomicBoolean(true);
         AtomicBoolean isStopped = new AtomicBoolean(false);
+        Boolean needPrint = props.getProperty("print.msg").equalsIgnoreCase("true");
 
         ExecutorService exec = Executors.newFixedThreadPool(threadNum);
         for (int i = 0; i < threadNum; i++)
@@ -115,7 +114,7 @@ public class Generator {
                     String msg = nextRecord();
                     if (msg.trim().equals("")) continue;
                     producer.send(new ProducerRecord<>(topic, msg));
-                    System.out.println(msg);
+                    if (needPrint) System.out.println(msg);
                     count.getAndIncrement();
                     sum.getAndIncrement();
                 }
@@ -150,6 +149,10 @@ public class Generator {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+            if (!needPrint) {
+                String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
+                System.out.println("[" + time + "] sent a batch of messages.");
             }
             count.set(0);
             isPaused.set(false);

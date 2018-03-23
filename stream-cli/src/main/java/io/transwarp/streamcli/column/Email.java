@@ -5,7 +5,6 @@ import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -18,7 +17,7 @@ import java.util.Properties;
 public class Email implements DataGen {
     private List<String> suffix;
 
-    public Email(Properties props) {
+    public Email(List<String> configs) {
         suffix = ConfLoader.loadConf("email_suffix");
     }
 

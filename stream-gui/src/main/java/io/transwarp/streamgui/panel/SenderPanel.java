@@ -64,7 +64,7 @@ public class SenderPanel extends JPanel {
             @Override
             protected Boolean doInBackground() {
                 Properties props = new Properties();
-                props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, testConnField.getText());
+                props.setProperty(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, testConnField.getText().trim());
                 try (AdminClient adminClient = AdminClient.create(props)) {
                     adminClient.listTopics(new ListTopicsOptions().timeoutMs(5000)).listings().get();
                     return true;
@@ -149,7 +149,7 @@ public class SenderPanel extends JPanel {
     }
 
     private void genProps() {
-        producerProps.setProperty("bootstrap.servers", testConnField.getText());
+        producerProps.setProperty("bootstrap.servers", testConnField.getText().trim());
         ConfLoader.writeProps("producer.properties", producerProps);
 
         Properties generatorProps = ConfLoader.loadProps("generator.properties");

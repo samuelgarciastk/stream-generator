@@ -27,7 +27,7 @@ public class S_CORP_RCV implements DataGen {
     private String dateFormat;
 
     public S_CORP_RCV(Properties props) {
-        info = new SafeInfo(props);
+        info = new SafeInfo(null);
         delimiter = props.getProperty("delimiter");
         base = new AtomicLong(Long.parseLong(props.getProperty("safe.base")));
         beginDate = props.getProperty("safe.date.begin.year") + "0101";

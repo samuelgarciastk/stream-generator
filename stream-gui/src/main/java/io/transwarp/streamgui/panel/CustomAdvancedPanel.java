@@ -1,39 +1,39 @@
 package io.transwarp.streamgui.panel;
 
-import io.transwarp.streamcli.common.ConfLoader;
 import io.transwarp.streamgui.common.UITools;
-import io.transwarp.streamgui.config.Template;
+import io.transwarp.streamgui.config.Column;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringJoiner;
 
 /**
  * Author: stk
- * Date: 2018/3/16
+ * Date: 2018/3/20
  */
-public class AdvancedPanel extends PropsBox {
-    private List<String> customConfigs;
+public class CustomAdvancedPanel extends PropsBox {
+    private String column;
     private List<JTextField> customField;
 
-    AdvancedPanel(String template) {
+    CustomAdvancedPanel(String column) {
         super(BoxLayout.Y_AXIS);
-        customConfigs = Template.getEnum(template).getConfigs();
-        if (customConfigs != null) {
-            Properties generatorProps = ConfLoader.loadProps("generator.properties");
+        this.column = column;
+        List<String> configs = Column.getEnum(column).getConfigs();
+        if (configs != null) {
             customField = new ArrayList<>();
             List<JLabel> labels = new ArrayList<>();
-            customConfigs.forEach(i -> {
+            configs.forEach(i -> {
                 labels.add(new JLabel(i + "："));
-                customField.add(new JTextField(generatorProps.getProperty(i)));
+                customField.add(new JTextField());
             });
             labels.forEach(i -> UITools.setFixedSize(i, new Dimension(180, 30)));
             customField.forEach(i -> UITools.setFixedSize(i, new Dimension(100, 30)));
 
             List<Box> lines = new ArrayList<>();
-            for (int i = 0; i < customConfigs.size(); i++) {
+            for (int i = 0; i < configs.size(); i++) {
                 Box line = Box.createHorizontalBox();
                 line.add(labels.get(i));
                 line.add(customField.get(i));
@@ -44,16 +44,15 @@ public class AdvancedPanel extends PropsBox {
                 add(i);
                 add(Box.createVerticalStrut(20));
             });
-        } else {
-            customConfigs = new ArrayList<>();
         }
     }
 
     @Override
     public Properties genProps() {
         Properties props = new Properties();
-        for (int i = 0; i < customConfigs.size(); i++)
-            props.setProperty(customConfigs.get(i), customField.get(i).getText().trim());
+        StringJoiner configString = new StringJoiner(",");
+        customField.forEach(i -> configString.add("\"" + i.getText().trim() + "\""));
+        props.setProperty("column", column + configString.toString());
         return props;
     }
 }

@@ -4,7 +4,6 @@ import io.transwarp.streamcli.common.ConfLoader;
 import io.transwarp.streamcli.common.DataGen;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -16,7 +15,7 @@ import java.util.Properties;
 public class City implements DataGen {
     private List<String> cities;
 
-    public City(Properties props) {
+    public City(List<String> configs) {
         cities = ConfLoader.loadConf("cities");
     }
 

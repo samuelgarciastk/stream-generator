@@ -5,7 +5,6 @@ import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -18,7 +17,7 @@ import java.util.Properties;
 public class PhoneNumber implements DataGen {
     private List<String> prefix;
 
-    public PhoneNumber(Properties props) {
+    public PhoneNumber(List<String> configs) {
         prefix = ConfLoader.loadConf("phone_prefix");
     }
 

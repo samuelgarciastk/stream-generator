@@ -7,7 +7,6 @@ import io.transwarp.streamcli.common.TimeGenerator;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -21,10 +20,10 @@ public class IDCard implements DataGen {
     private String beginDate;
     private String endDate;
 
-    public IDCard(Properties props) {
+    public IDCard(List<String> configs) {
         addressCode = ConfLoader.loadConf("address_code", 2, 0);
-        beginDate = props.getProperty("people.birthday.begin");
-        endDate = props.getProperty("people.birthday.end");
+        beginDate = configs.get(0);
+        endDate = configs.get(1);
     }
 
     private char checkCode(String id) {

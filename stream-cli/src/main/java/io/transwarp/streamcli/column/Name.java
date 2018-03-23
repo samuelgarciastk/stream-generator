@@ -5,7 +5,6 @@ import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -18,7 +17,7 @@ public class Name implements DataGen {
     private List<String> firstName;
     private String base;
 
-    public Name(Properties props) {
+    public Name(List<String> configs) {
         firstName = ConfLoader.loadConf("first_name");
         base = ConfLoader.loadString("chinese_words");
     }

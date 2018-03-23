@@ -3,6 +3,7 @@ package io.transwarp.streamcli.schema;
 import io.transwarp.streamcli.column.*;
 import io.transwarp.streamcli.common.DataGen;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.StringJoiner;
 
@@ -24,12 +25,12 @@ public class People implements DataGen {
     private String delimiter;
 
     public People(Properties props) {
-        name = new Name(props);
-        nation = new Nation(props);
-        idCard = new IDCard(props);
-        phoneNumber = new PhoneNumber(props);
-        email = new Email(props);
-        address = new Address(props);
+        name = new Name(null);
+        nation = new Nation(null);
+        idCard = new IDCard(List.of(props.getProperty("people.birthday.begin"), props.getProperty("people.birthday.end")));
+        phoneNumber = new PhoneNumber(null);
+        email = new Email(null);
+        address = new Address(null);
         delimiter = props.getProperty("delimiter");
     }
 

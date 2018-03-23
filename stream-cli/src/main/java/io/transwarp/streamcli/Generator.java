@@ -1,13 +1,12 @@
 package io.transwarp.streamcli;
 
-import io.transwarp.streamcli.column.RegexString;
-import io.transwarp.streamcli.column.Timestamp;
 import io.transwarp.streamcli.common.ConfLoader;
 import io.transwarp.streamcli.common.DataGen;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Author: stk
@@ -51,31 +51,27 @@ public class Generator {
      * Parse the template in 'generator.properties'.
      */
     public void parseConf() {
-        String[] classes = props.getProperty("template").split("``");
-        for (String name : classes) {
-            name = name.trim();
-            switch (name.substring(0, 2)) {
-                case "T:": {
-                    data.add(new Timestamp(name.substring(2)));
-                    break;
+        String[] columns = props.getProperty("template").split("``");
+        for (String column : columns) {
+            column = column.trim();
+            if (column.contains("(") && column.contains(")")) {
+                String name = column.substring(0, column.indexOf("("));
+                String configString = column.substring(column.indexOf("(") + 1, column.lastIndexOf(")"));
+                List<String> configs = null;
+                if (configString.length() != 0)
+                    configs = Arrays.stream(configString.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1)).map(i -> i = i.substring(1, i.length() - 1)).collect(Collectors.toList());
+                try {
+                    data.add((DataGen) Class.forName("io.transwarp.streamcli.column." + name).getConstructor(List.class).newInstance(configs));
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
+                    System.err.println("Class not found: " + name);
+                    e.printStackTrace();
                 }
-                case "R:": {
-                    data.add(new RegexString(name.substring(2)));
-                    break;
-                }
-                default: {
-                    try {
-                        data.add((DataGen) Class.forName("io.transwarp.streamcli.column." + name).getConstructor(Properties.class).newInstance(props));
-                    } catch (ClassNotFoundException e) {
-                        try {
-                            data.add((DataGen) Class.forName("io.transwarp.streamcli.schema." + name).getConstructor(Properties.class).newInstance(props));
-                        } catch (Exception e1) {
-                            System.err.println("Class not found: " + name);
-                            e1.printStackTrace();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            } else {
+                try {
+                    data.add((DataGen) Class.forName("io.transwarp.streamcli.schema." + column).getConstructor(Properties.class).newInstance(props));
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e1) {
+                    System.err.println("Class not found: " + column);
+                    e1.printStackTrace();
                 }
             }
         }

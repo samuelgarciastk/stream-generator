@@ -106,7 +106,7 @@ public class BasicPanel extends PropsBox {
     @Override
     public Properties genProps() {
         Properties props = new Properties();
-        props.setProperty("topic", basicField.get(0).getText());
+        props.setProperty("topic", basicField.get(0).getText().trim());
         props.setProperty("template", Template.getEnum(String.valueOf(template.getSelectedItem())).toString());
         Properties advancedProps = advancedPane.genProps();
         props.putAll(advancedProps);

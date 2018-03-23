@@ -4,7 +4,6 @@ import io.transwarp.streamcli.common.ConfLoader;
 import io.transwarp.streamcli.common.DataGen;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -16,7 +15,7 @@ import java.util.Properties;
 public class SafeInfo implements DataGen {
     private List<String> safeCode;
 
-    public SafeInfo(Properties props) {
+    public SafeInfo(List<String> configs) {
         safeCode = ConfLoader.loadConf("safe_info", 2, 1);
     }
 

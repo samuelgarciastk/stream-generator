@@ -5,7 +5,6 @@ import io.transwarp.streamcli.common.DataGen;
 import io.transwarp.streamcli.common.StringGenerator;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Author: stk
@@ -18,7 +17,7 @@ import java.util.Properties;
 public class Address implements DataGen {
     private List<String> addresses;
 
-    public Address(Properties props) {
+    public Address(List<String> configs) {
         addresses = ConfLoader.loadConf("address_code", 2, 1);
     }
 

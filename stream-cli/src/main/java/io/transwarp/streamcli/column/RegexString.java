@@ -1,7 +1,9 @@
 package io.transwarp.streamcli.column;
 
-import io.transwarp.streamcli.common.StringGenerator;
 import io.transwarp.streamcli.common.DataGen;
+import io.transwarp.streamcli.common.StringGenerator;
+
+import java.util.List;
 
 /**
  * Author: stk
@@ -12,8 +14,8 @@ import io.transwarp.streamcli.common.DataGen;
 public class RegexString implements DataGen {
     private String regex;
 
-    public RegexString(String regex) {
-        this.regex = regex;
+    public RegexString(List<String> configs) {
+        this.regex = configs.get(0);
     }
 
     @Override

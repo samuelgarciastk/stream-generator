@@ -2,7 +2,7 @@ package io.transwarp.streamcli.column;
 
 import io.transwarp.streamcli.common.DataGen;
 
-import java.util.Properties;
+import java.util.List;
 
 /**
  * Author: stk
@@ -11,7 +11,7 @@ import java.util.Properties;
  * Generate random gender.
  */
 public class Gender implements DataGen {
-    public Gender(Properties props) {
+    public Gender(List<String> configs) {
     }
 
     @Override

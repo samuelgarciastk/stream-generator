@@ -14,8 +14,11 @@ import java.util.List;
  * Date: 2018/3/16
  */
 public class CustomPanel extends PropsBox {
+    private JScrollPane scrollPane;
+    private PropsBox advancedPane;
     private JTextArea desc;
     private List<JComboBox<String>> columns;
+    private List<PropsBox> customPanes;
 
     public CustomPanel(JScrollPane scrollPane) {
         super(BoxLayout.Y_AXIS);
@@ -23,6 +26,7 @@ public class CustomPanel extends PropsBox {
             ((Box) scrollPane.getViewport().getView()).remove(1);
         } catch (Exception ignored) {
         }
+        this.scrollPane = scrollPane;
         JPanel panel = new JPanel(new BorderLayout());
 
         Box preview = Box.createVerticalBox();
@@ -96,7 +100,10 @@ public class CustomPanel extends PropsBox {
         JComboBox<String> column = new JComboBox<>();
         Arrays.stream(Column.values()).forEach(i -> column.addItem(i.getName()));
         UITools.setFixedSize(column, new Dimension(100, 30));
-        column.addItemListener(e -> setTemplate());
+        column.addItemListener(e -> {
+            setTemplate();
+            changeAdvancedPane(String.valueOf(column.getSelectedItem()));
+        });
         return column;
     }
 
@@ -105,6 +112,17 @@ public class CustomPanel extends PropsBox {
             StringJoiner template = new StringJoiner(" | ");
             columns.forEach(i -> template.add(String.valueOf(i.getSelectedItem())));
             desc.setText(template.toString());
+        });
+    }
+
+    private void changeAdvancedPane(String column) {
+        SwingUtilities.invokeLater(() -> {
+            Box sidePane = (Box) scrollPane.getViewport().getView();
+            if (advancedPane != null) sidePane.remove(advancedPane);
+            advancedPane = new CustomAdvancedPanel(column);
+            sidePane.add(advancedPane);
+            scrollPane.validate();
+            scrollPane.repaint();
         });
     }
 

@@ -20,7 +20,7 @@ public class Hotel implements DataGen {
     private String delimiter;
 
     public Hotel(Properties props) {
-        address = new Address(props);
+        address = new Address(null);
         delimiter = props.getProperty("delimiter");
     }
 

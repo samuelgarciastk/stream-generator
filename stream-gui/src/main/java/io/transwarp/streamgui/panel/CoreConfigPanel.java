@@ -52,11 +52,11 @@ public class CoreConfigPanel extends PropsBox {
     @Override
     public Properties genProps() {
         Properties props = new Properties();
-        props.setProperty("thread.num", advancedField.get(0).getText());
-        props.setProperty("delimiter", advancedField.get(1).getText());
-        props.setProperty("data.per.second", advancedField.get(2).getText());
-        props.setProperty("partition.num", advancedField.get(3).getText());
-        props.setProperty("replication.num", advancedField.get(4).getText());
+        props.setProperty("thread.num", advancedField.get(0).getText().trim());
+        props.setProperty("delimiter", advancedField.get(1).getText().trim());
+        props.setProperty("data.per.second", advancedField.get(2).getText().trim());
+        props.setProperty("partition.num", advancedField.get(3).getText().trim());
+        props.setProperty("replication.num", advancedField.get(4).getText().trim());
         return props;
     }
 }

@@ -1,7 +1,9 @@
 package io.transwarp.streamcli.column;
 
-import io.transwarp.streamcli.common.TimeGenerator;
 import io.transwarp.streamcli.common.DataGen;
+import io.transwarp.streamcli.common.TimeGenerator;
+
+import java.util.List;
 
 /**
  * Author: stk
@@ -16,11 +18,10 @@ public class Timestamp implements DataGen {
     private String begin;
     private String end;
 
-    public Timestamp(String param) {
-        String[] timeArr = param.split("&");
-        format = timeArr[0].trim();
-        begin = timeArr[1].trim();
-        end = timeArr[2].trim();
+    public Timestamp(List<String> configs) {
+        format = configs.get(0);
+        begin = configs.get(1);
+        end = configs.get(2);
     }
 
     @Override

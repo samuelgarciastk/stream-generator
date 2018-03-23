@@ -6,7 +6,7 @@ import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.CreateTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -45,7 +45,7 @@ public class Topic {
         String topic = generatorProps.getProperty("topic");
         int partition = Integer.parseInt(generatorProps.getProperty("partition.num"));
         short replication = Short.parseShort(generatorProps.getProperty("replication.num"));
-        CreateTopicsResult result = admin.createTopics(Collections.singletonList(new NewTopic(topic, partition, replication)));
+        CreateTopicsResult result = admin.createTopics(List.of(new NewTopic(topic, partition, replication)));
         try {
             result.all().get(10, TimeUnit.SECONDS);
             return true;

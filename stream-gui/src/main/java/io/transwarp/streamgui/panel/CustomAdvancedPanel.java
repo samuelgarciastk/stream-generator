@@ -23,12 +23,13 @@ public class CustomAdvancedPanel extends PropsBox {
         this.column = column;
         List<String> configs = Column.getEnum(column).getConfigs();
         if (configs != null) {
+            List<String> defaultConfigs = Column.getEnum(column).getDefaultConfigs();
             customField = new ArrayList<>();
             List<JLabel> labels = new ArrayList<>();
-            configs.forEach(i -> {
-                labels.add(new JLabel(i + "："));
-                customField.add(new JTextField());
-            });
+            for (int i = 0; i < configs.size(); i++) {
+                labels.add(new JLabel(configs.get(i) + "："));
+                customField.add(new JTextField(defaultConfigs.get(i)));
+            }
             labels.forEach(i -> UITools.setFixedSize(i, new Dimension(180, 30)));
             customField.forEach(i -> UITools.setFixedSize(i, new Dimension(100, 30)));
 
@@ -51,8 +52,13 @@ public class CustomAdvancedPanel extends PropsBox {
     public Properties genProps() {
         Properties props = new Properties();
         StringJoiner configString = new StringJoiner(",");
-        customField.forEach(i -> configString.add("\"" + i.getText().trim() + "\""));
-        props.setProperty("column", column + configString.toString());
+        if (customField != null)
+            customField.forEach(i -> configString.add("\"" + i.getText().trim() + "\""));
+        props.setProperty("column", Column.getEnum(column).toString() + "(" + configString.toString() + ")");
         return props;
+    }
+
+    public String getColumn() {
+        return column;
     }
 }

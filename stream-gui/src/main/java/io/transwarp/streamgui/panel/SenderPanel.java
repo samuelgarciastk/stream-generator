@@ -118,6 +118,8 @@ public class SenderPanel extends JPanel {
                 advanced.setText("<<");
                 scrollPane.setVisible(false);
             }
+            scrollPane.validate();
+            scrollPane.repaint();
             validate();
             repaint();
         }));

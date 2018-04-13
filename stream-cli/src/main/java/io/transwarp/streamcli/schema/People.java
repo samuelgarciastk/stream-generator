@@ -3,6 +3,7 @@ package io.transwarp.streamcli.schema;
 import io.transwarp.streamcli.column.*;
 import io.transwarp.streamcli.common.DataGen;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringJoiner;
@@ -27,7 +28,7 @@ public class People implements DataGen {
     public People(Properties props) {
         name = new Name(null);
         nation = new Nation(null);
-        idCard = new IDCard(List.of(props.getProperty("people.birthday.begin"), props.getProperty("people.birthday.end")));
+        idCard = new IDCard(Arrays.asList(props.getProperty("people.birthday.begin"), props.getProperty("people.birthday.end")));
         phoneNumber = new PhoneNumber(null);
         email = new Email(null);
         address = new Address(null);
